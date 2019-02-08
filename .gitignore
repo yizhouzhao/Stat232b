@@ -2,3 +2,9 @@ yolo_for_AOG_local/x64/
 yolo_for_AOG_local/.vs/
 yolo_for_AOG_local/yolo_for_AOG/data/
 yolo_for_AOG_local/yolo_for_AOG/x64/
+
+AOG_part_local/x64/
+AOG_part_local/.vs/
+AOG_part_local/Debug/
+AOG_part_local/yolo_for_AOG/Debug/
+AOG_part_local/yolo_for_AOG/x64/

@@ -58,7 +58,7 @@ void predictImageHaar(const string& filename, bool face_instead_of_eye) {
 		int radius;
 
 		double aspect_ratio = (double)r.width / r.height;
-		if (0.75 < aspect_ratio && aspect_ratio < 1.3)
+		if (false) //0.75 < aspect_ratio && aspect_ratio < 1.3)
 		{
 			center.x = cvRound((r.x + r.width*0.5)*scale);
 			center.y = cvRound((r.y + r.height*0.5)*scale);
@@ -79,14 +79,24 @@ void predictImageHaar(const string& filename, bool face_instead_of_eye) {
 		//-- In each face, detect eyes
 		nestedCascade.detectMultiScale(gray, eyes, 1.1, 1, 0 | CASCADE_SCALE_IMAGE, Size(5, 5));
 
-		imshow("small part", smallImgROI);
-		waitKey(0);
+		//imshow("small part", smallImgROI);
+		//waitKey(0);
 
 		for (size_t j = 0; j < eyes.size(); j++)
 		{
-			Point center(faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5);
-			int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
-			circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+			//code for draw samllROI images with circles
+			//Point center(faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5);
+			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
+			//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+
+			//code for draw gray scale images with circles
+			//Point center(eyes[j].x + eyes[j].width*0.5, eyes[j].y + eyes[j].height*0.5);
+			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
+			//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+
+			rectangle(frame, Point(cvRound(eyes[j].x * scale), cvRound(eyes[j].y * scale)),
+				Point(cvRound((eyes[j].x + eyes[j].width - 1) * scale),
+					cvRound((eyes[j].y + eyes[j].height - 1) * scale)), color, 3, 8, 0);
 		}
 
 		//// Detection of eyes int the input image 

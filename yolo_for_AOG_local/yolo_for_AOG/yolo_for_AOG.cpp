@@ -16,9 +16,9 @@ int main()
 	std::cout << names_list[10] << std::endl;
 	
 	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\class1.jpg";
-	predictImageYolov3(filename);
+	//predictImageYolov3(filename);
 
-	//predictImageHaar(filename);
+	predictImageHaar(filename);
 
 	return 0; 
 }

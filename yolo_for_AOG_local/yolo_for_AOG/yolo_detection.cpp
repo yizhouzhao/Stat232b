@@ -43,6 +43,8 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes)
 	vector<float> confidences;
 	vector<Rect> boxes;
 
+	//std::cout << outs.size() << std::endl;
+
 	for (size_t i = 0; i < outs.size(); ++i)
 	{
 		// Scan through all the bounding boxes output from the network and keep only the
@@ -147,7 +149,7 @@ void predictImageYolov3(const string& filename) {
 	// Write the frame with the detection boxes
 	Mat detectedFrame;
 	frame.convertTo(detectedFrame, CV_8U);
-	imwrite(outputFile, detectedFrame);
+	//imwrite(outputFile, detectedFrame);
 }
 
 
