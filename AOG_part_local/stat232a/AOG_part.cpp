@@ -28,6 +28,7 @@
 #include <string>
 #include <iostream>
 #include "AOG.h"
+#include "random_rectangles.h"
 
 using namespace std;
 using namespace AOG_LIB;
@@ -76,6 +77,7 @@ void SampleToFile(string filename, const AOG<string, string>& t_aog, VertexId sa
 }
 int main()
 { 
+	/*
 	//Define an AOG
 	vector<Symbolic_Rule<string> > rules;
 	Symbolic_State<string> root("O", false);
@@ -307,8 +309,12 @@ int main()
 
 	SampleToFile("./grammar_example_samples.txt", t_aog, t_aog.GetVertexIdByState(root));
 
+	*/
+
+
 	std::cout << "Hello World!\n";
 
+	
 	return 0;
 }
 

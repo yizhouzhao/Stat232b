@@ -8,6 +8,7 @@
 #include <utility>
 #include "Symbolic_State.h"
 #include<boost/functional/hash.hpp>
+
 namespace AOG_LIB
 {
     /* This class defines symbolic rules used to construct an AOG Graph

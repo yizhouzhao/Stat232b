@@ -8,6 +8,7 @@ using namespace cv;
 using namespace dnn;
 #include "yolo_detection.h"
 #include "haar_detection.h"
+#include "random_generator.h"
 
 int main()
 {
@@ -18,7 +19,10 @@ int main()
 	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\class1.jpg";
 	//predictImageYolov3(filename);
 
-	predictImageHaar(filename);
+	//predictImageHaar(filename);
+
+	Mat frame = Mat::zeros(600, 800, CV_8UC3);
+	generateRectanglesOnFrame(frame);
 
 	return 0; 
 }

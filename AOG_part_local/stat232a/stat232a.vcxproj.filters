@@ -36,6 +36,9 @@
     <ClInclude Include="AOG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="random_rectangles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
