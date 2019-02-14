@@ -2,6 +2,10 @@
 #define PLOT_AOG_H
 #endif // !PLOT_AOG_H
 
+#include <iomanip>
+#include <sstream> 
+#include <math.h> 
+
 #include "AOG.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -155,9 +159,26 @@ void dash_circle(Mat& img, Point center, int radius, const void* color, int fill
 #undef  ICV_PUT_POINT
 }
 
+void dash_line(Mat& img, Point pt1, Point pt2, Scalar color, int gap = 5) {
+	double dist = sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2));
+	std::vector<Point> pts;
+
+	for (int i = 0; i < dist; i += gap) {
+		double r = i / dist;
+		int x(pt1.x * (1 - r) + pt2.x * r + 0.5);
+		int y(pt1.y * (1 - r) + pt2.y * r + 0.5);
+		Point p(x, y);
+		pts.push_back(p);
+	}
+
+	for (auto& p : pts) {
+		cv::circle(img, p, 1, color, -1);
+	}
+}
+
 
 template<class StateType, class AttributeType>
-void PlotAOG(const AOG<StateType, AttributeType>& aog, VertexId root) {
+void PlotAOG(const AOG<StateType, AttributeType>& aog, VertexId root, HersheyFonts font = cv::FONT_HERSHEY_SIMPLEX) {
 	//auto root_parent = aog.ParentsVertices(root);
 	//if (!root_parent.empty() && !aog.GetVertexContent(root_parent[0])->IsAnd())
 	//	root = root_parent[0];
@@ -258,43 +279,52 @@ void PlotAOG(const AOG<StateType, AttributeType>& aog, VertexId root) {
 			//rectangle(frame, Point(100, 100), Point(200, 200), color, 5, 8);
 			//dash_circle(frame, center, radius, color, 2, cv::LINE_8);
 			
+			Point arrow_start(center.x, center.y + width_per_node / 2.5);
 			if (and_or == 0) {
 				dash_circle(frame, center, radius, &color, 0);
 				std::unordered_map<VertexId, double> edge_weights = aog.GetOutEdgeWeights(cur_vertex_id, true);
-				Point arrow_start(center.x, center.y + width_per_node / 2.5);
 				for (auto w : edge_weights)
 				{
-					//VertexId cur_child = children[k];
-					//int child_nodes = num_of_child_leaf_nodes[cur_child];
-					//Point arrow_end((child_nodes / 2.0 + cum_children + 1) * width_per_node, 
-					//	(i + 1) * height_per_layer + 50 - width_per_node / 2.5);
+					VertexId cur_child = w.first;
+					int child_nodes = num_of_child_leaf_nodes[cur_child];
+					Point arrow_end((child_nodes / 2.0 + cum_children + 1) * width_per_node, 
+						(i + 1) * height_per_layer + 50 - width_per_node / 2.5);
 					//cv::arrowedLine(frame, arrow_start, arrow_end, color, 1, 8, 0, 0.04);
+					dash_line(frame, arrow_start, arrow_end, color);
 
-					//cum_children += child_nodes;
+					Point arrow_middle((arrow_start.x + 2 * arrow_end.x) / 3, (arrow_start.y + 2 * arrow_end.y) / 3);
+					double weight = std::floor((w.second * 100) + .5) / 100;
+					std::stringstream ss;
+					ss << std::fixed << std::setprecision(2) << weight;
+					std::string mystring = ss.str();
+
+					std::cout << "weight: " << std::to_string(weight) << std::endl;
+					putText(frame, mystring, arrow_middle, font, 0.4, (255, 255, 255), 1, cv::LINE_8);
+
+					cum_children += child_nodes;
 				}
 
 			}
 				
-			else
+			else{
 				circle(frame, center, radius, color, 2, 8, 0);
-			auto font = cv::FONT_HERSHEY_SIMPLEX;
-			
-			std::vector<VertexId> children = aog.ChildrenVertices(cur_vertex_id);
-			
-			//Point arrow_start(center.x, center.y + width_per_node / 2.5);
-			//int children_size = children.size();
-			//for (int k = 0; k < children_size; ++k) {
-			//	VertexId cur_child = children[k];
-			//	int child_nodes = num_of_child_leaf_nodes[cur_child];
-			//	Point arrow_end((child_nodes / 2.0 + cum_children + 1) * width_per_node, 
-			//		(i + 1) * height_per_layer + 50 - width_per_node / 2.5);
-			//	cv::arrowedLine(frame, arrow_start, arrow_end, color, 1, 8, 0, 0.04);
+				std::vector<VertexId> children = aog.ChildrenVertices(cur_vertex_id);
 
-			//	cum_children += child_nodes;
-			//}
+				Point arrow_start(center.x, center.y + width_per_node / 2.5);
+				int children_size = children.size();
+				for (int k = 0; k < children_size; ++k) {
+					VertexId cur_child = children[k];
+					int child_nodes = num_of_child_leaf_nodes[cur_child];
+					Point arrow_end((child_nodes / 2.0 + cum_children + 1) * width_per_node,
+						(i + 1) * height_per_layer + 50 - width_per_node / 2.5);
+					cv::line(frame, arrow_start, arrow_end, color, 1, 8, 0);
 
+					cum_children += child_nodes;
+				}
+			}
+				
 			Point text_center(center.x - width_per_node / 8, center.y);
-			putText(frame, content, text_center, font, 0.4, (255, 255, 255), 1, cv::LINE_8);
+			putText(frame, content, text_center, font, 0.45, Scalar(80, 50, 255), 1, cv::LINE_8);
 
 			cum_nodes += nodes;
 			//std::cout << num_of_child_leaf_nodes[layer_list[i][j]] << " ";
@@ -302,7 +332,16 @@ void PlotAOG(const AOG<StateType, AttributeType>& aog, VertexId root) {
 		std::cout << std::endl;
 	}
 
+
+	Point p1(0, 0);                            // start & end points 
+	Point p2(300, 300);
+	LineIterator it(frame, p1, p2, 8);            // get a line iterator
+	for (int i = 0; i < it.count; i++, it++)
+		if (i % 5 != 0) { (*it)[0] = 255; }         // every 5'th pixel gets dropped, blue stipple line
+
+
 	cv::imshow("image-", frame);
+	cv::imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\demo.jpg", frame);
 	cv::waitKey(0);
 
 
