@@ -36,7 +36,7 @@
     <ClInclude Include="AOG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="random_rectangles.h">
+    <ClInclude Include="plot_aog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

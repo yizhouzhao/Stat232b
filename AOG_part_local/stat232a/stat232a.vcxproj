@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\cpp\opencv\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\cpp\opencv\build\x64\vc15\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_world401d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -167,7 +167,7 @@
     <ClInclude Include="AOG_Vertex.h" />
     <ClInclude Include="Core\Graph.hpp" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="random_rectangles.h" />
+    <ClInclude Include="plot_aog.h" />
     <ClInclude Include="Symbolic_Rule.h" />
     <ClInclude Include="Symbolic_State.h" />
   </ItemGroup>

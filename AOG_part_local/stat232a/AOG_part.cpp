@@ -28,7 +28,8 @@
 #include <string>
 #include <iostream>
 #include "AOG.h"
-#include "random_rectangles.h"
+
+#include "plot_aog.h"
 
 using namespace std;
 using namespace AOG_LIB;
@@ -77,7 +78,8 @@ void SampleToFile(string filename, const AOG<string, string>& t_aog, VertexId sa
 }
 int main()
 { 
-	/*
+	
+	// an example
 	//Define an AOG
 	vector<Symbolic_Rule<string> > rules;
 	Symbolic_State<string> root("O", false);
@@ -304,12 +306,33 @@ int main()
 	}
 	t_aog.SetOutEdgeWeights(t_aog.GetVertexIdByState(c2), weights);
 
-	t_aog.SaveGraph("./", "grammar_example.txt");
-	t_aog.Visualize("./", "./grammar_example_vis.txt");
+	//t_aog.SaveGraph("./", "grammar_example.txt");
+	//t_aog.Visualize("./", "./grammar_example_vis.txt");
 
-	SampleToFile("./grammar_example_samples.txt", t_aog, t_aog.GetVertexIdByState(root));
+	//SampleToFile("./grammar_example_samples.txt", t_aog, t_aog.GetVertexIdByState(root));
 
+	
+
+	/*
+	vector<Symbolic_Rule<string> > rules;
+	Symbolic_State<string> root("O", false);
+	Symbolic_State<string> A("A", true);
+	Symbolic_State<string> B("B", true);
+	Symbolic_State<string> C("C", true);
+	vector<Symbolic_State<string> > level1A = { A };
+	vector<Symbolic_State<string> > level1B = { B };
+	vector<Symbolic_State<string> > level1C = { C };
+	Symbolic_Rule<string> level1Arule(root, level1A);
+	Symbolic_Rule<string> level1Brule(root, level1B);
+	Symbolic_Rule<string> level1Crule(root, level1C);
+	rules.push_back(level1Arule);
+	rules.push_back(level1Brule);
+	rules.push_back(level1Crule);
+
+	AOG<string, string> t_aog(rules);
+	t_aog.SetRoot(root);
 	*/
+	PlotAOG(t_aog, t_aog.GetVertexIdByState(root));
 
 
 	std::cout << "Hello World!\n";

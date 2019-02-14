@@ -87,6 +87,7 @@ void generateRectanglesOnFrame(Mat frame) {
 
 	Scalar color22 = Scalar(155, 20, 110);
 	rectangle(frame, Point(top_y_22, top_x_22), Point(bottom_y_22, bottom_x_22), color22, 1, 8);
+
 	imshow("Image4", frame);
 	cv::waitKey(0);
 
