@@ -332,8 +332,9 @@ int main()
 	AOG<string, string> t_aog(rules);
 	t_aog.SetRoot(root);
 	*/
-	PlotAOG(t_aog, t_aog.GetVertexIdByState(root));
-
+	Mat frame = PlotAOG(t_aog, t_aog.GetVertexIdByState(root));
+	imshow("image", frame);
+	waitKey(0);
 
 	std::cout << "Hello World!\n";
 

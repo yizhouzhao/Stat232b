@@ -149,7 +149,7 @@ void predictImageYolov3(const string& filename) {
 	// Write the frame with the detection boxes
 	Mat detectedFrame;
 	frame.convertTo(detectedFrame, CV_8U);
-	//imwrite(outputFile, detectedFrame);
+	imwrite(outputFile, detectedFrame);
 }
 
 

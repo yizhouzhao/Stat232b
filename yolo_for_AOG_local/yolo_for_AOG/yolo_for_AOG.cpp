@@ -16,7 +16,7 @@ int main()
 	vector<string> names_list = getNamesOfClasses("data\\coco.names");
 	std::cout << names_list[10] << std::endl;
 	
-	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\class1.jpg";
+	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\timg.jpg";
 	//predictImageYolov3(filename);
 
 	//predictImageHaar(filename);
