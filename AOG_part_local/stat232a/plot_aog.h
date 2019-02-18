@@ -1,6 +1,6 @@
 #ifndef PLOT_AOG_H
 #define PLOT_AOG_H
-#endif // !PLOT_AOG_H
+
 
 #include <iomanip>
 #include <sstream> 
@@ -278,7 +278,7 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 			Point center((nodes / 2.0 + cum_nodes + 1) * width_per_node, i * height_per_layer + 50);//calculate the center to draw circle for this node
 			std::string content = aog.GetStateByVertexId(cur_vertex_id).GetContent(); //get content
 			const bool and_or = aog.GetVertexContent(cur_vertex_id)->IsAnd();//is AND or OR node 
-			//std::cout << content << " id: " << cur_vertex_id << " and or: " << and_or << " " << center.x << " " << center.y << " ";
+			std::cout << content << " id: " << cur_vertex_id << " and or: " << and_or << " " << center.x << " " << center.y << " " << std::endl;
 			const int radius = width_per_node / 3; //set radius
 
 			Point arrow_start(center.x, center.y + width_per_node / 2.5);//the start point of line
@@ -299,13 +299,13 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 					Point arrow_middle((arrow_start.x + 2 * arrow_end.x) / 3, (arrow_start.y + 2 * arrow_end.y) / 3);
 					
 					//round 2 decimals for weights
-					double weight = std::floor((w.second * 100) + .5) / 100;
-					std::stringstream ss;
-					ss << std::fixed << std::setprecision(2) << weight;
-					std::string weights_string = ss.str();
+					//double weight = std::floor((w.second * 100) + .5) / 100;
+					//std::stringstream ss;
+					//ss << std::fixed << std::setprecision(2) << weight;
+					//std::string weights_string = ss.str();
 
 					//std::cout << "weight: " << std::to_string(weight) << std::endl;
-					putText(frame, weights_string, arrow_middle, font, 0.4, (255, 255, 255), 1, cv::LINE_8);
+					putText(frame, std::to_string(w.second).substr(0,4), arrow_middle, font, 0.4, (255, 255, 255), 1, cv::LINE_8);
 
 					cum_children += child_nodes;
 				}
@@ -342,3 +342,4 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 	return frame;
 }
 
+#endif // !PLOT_AOG_H

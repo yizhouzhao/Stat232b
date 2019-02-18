@@ -342,12 +342,12 @@ int main()
 
 	//AlphaBetaGammaSAOG<string, string> example_aog(rules);
 
-	AOG<std::string, std::vector<double>> example_aog = AlphaBetaGammaSAOG("face", 0.5,
-		{ "right eye", "left eye" }, { 0.5, 0.5 }, "body", 0.5);
+	AOG<std::string, std::vector<double>> example_aog = AlphaBetaGammaSAOG("face", 0.45,
+		{ "right eye", "left eye" }, 0.8, "body", 0.10);
 
-	example_aog.SaveGraph("./", "abc_grammar_example.txt");
+	//example_aog.SaveGraph("./", "abc_grammar_example.txt");
 
-	Mat frame2 = PlotAOG(example_aog);
+	Mat frame2 = PlotAlphaBetaGammaSAOG(example_aog);
 	imshow("image2", frame2);
 	waitKey(0);
 
