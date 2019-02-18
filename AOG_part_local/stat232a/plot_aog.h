@@ -179,7 +179,8 @@ void dash_line(Mat& img, Point pt1, Point pt2, Scalar color, int gap = 5) {
 
 
 template<class StateType, class AttributeType>
-Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const VertexId root, const HersheyFonts font = cv::FONT_HERSHEY_SIMPLEX) {
+Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = cv::FONT_HERSHEY_SIMPLEX) {
+	const VertexId root = aog.GetRoot();
 	//auto root_parent = aog.ParentsVertices(root);
 	//if (!root_parent.empty() && !aog.GetVertexContent(root_parent[0])->IsAnd())
 	//	root = root_parent[0];

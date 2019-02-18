@@ -167,6 +167,7 @@
     <ClInclude Include="AOG_Vertex.h" />
     <ClInclude Include="Core\Graph.hpp" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="alpha_beta_gamma_SAOG.h" />
     <ClInclude Include="plot_aog.h" />
     <ClInclude Include="Symbolic_Rule.h" />
     <ClInclude Include="Symbolic_State.h" />

@@ -30,6 +30,7 @@
 #include "AOG.h"
 
 #include "plot_aog.h"
+#include "alpha_beta_gamma_SAOG.h"
 
 using namespace std;
 using namespace AOG_LIB;
@@ -76,10 +77,13 @@ void SampleToFile(string filename, const AOG<string, string>& t_aog, VertexId sa
 	}
 	outFile.close();
 }
+
+
 int main()
 { 
 	
 	// an example
+	/*
 	//Define an AOG
 	vector<Symbolic_Rule<string> > rules;
 	Symbolic_State<string> root("O", false);
@@ -310,10 +314,10 @@ int main()
 	//t_aog.Visualize("./", "./grammar_example_vis.txt");
 
 	//SampleToFile("./grammar_example_samples.txt", t_aog, t_aog.GetVertexIdByState(root));
-
+	*/
 	
 
-	/*
+	//another simple example
 	vector<Symbolic_Rule<string> > rules;
 	Symbolic_State<string> root("O", false);
 	Symbolic_State<string> A("A", true);
@@ -331,9 +335,20 @@ int main()
 
 	AOG<string, string> t_aog(rules);
 	t_aog.SetRoot(root);
-	*/
-	Mat frame = PlotAOG(t_aog, t_aog.GetVertexIdByState(root));
+	
+	Mat frame = PlotAOG(t_aog);
 	imshow("image", frame);
+	waitKey(0);
+
+	//AlphaBetaGammaSAOG<string, string> example_aog(rules);
+
+	AOG<std::string, std::vector<double>> example_aog = AlphaBetaGammaSAOG("face", 0.5,
+		{ "right eye", "left eye" }, { 0.5, 0.5 }, "body", 0.5);
+
+	example_aog.SaveGraph("./", "abc_grammar_example.txt");
+
+	Mat frame2 = PlotAOG(example_aog);
+	imshow("image2", frame2);
 	waitKey(0);
 
 	std::cout << "Hello World!\n";
