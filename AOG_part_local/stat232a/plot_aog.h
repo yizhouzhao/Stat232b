@@ -1,6 +1,5 @@
-#ifndef PLOT_AOG_H
-#define PLOT_AOG_H
-
+#ifndef AOG_LIB_PLOT_AOG_H
+#define AOG_LIB_PLOT_AOG_H
 
 #include <iomanip>
 #include <sstream> 
@@ -159,6 +158,17 @@ void dash_circle(Mat& img, Point center, int radius, const void* color, int fill
 #undef  ICV_PUT_POINT
 }
 
+//another way to draw dashed circle
+void dash_circle(Mat& img, Point center, int radius, Scalar color, int frequency = 35) {
+	double step = 2 * 3.1416 / frequency;
+	for (int i = 0; i < frequency; ++i) {
+		int y = center.y + sin(i * step)* radius;
+		int x = center.x + cos(i * step)* radius;
+		Point p(x, y);
+		circle(img, p, 1, color, -1);
+	}
+}
+
 /* draws dashed line */
 void dash_line(Mat& img, Point pt1, Point pt2, Scalar color, int gap = 5) {
 	double dist = sqrt(pow(pt1.x - pt2.x, 2) + pow(pt1.y - pt2.y, 2));
@@ -170,16 +180,20 @@ void dash_line(Mat& img, Point pt1, Point pt2, Scalar color, int gap = 5) {
 		int y(pt1.y * (1 - r) + pt2.y * r + 0.5);
 		Point p(x, y);
 		pts.push_back(p);
-	}
-
-	for (auto& p : pts) {
-		cv::circle(img, p, 1, color, -1);
+		circle(img, p, 1, color, -1);
 	}
 }
 
 
 template<class StateType, class AttributeType>
-Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = cv::FONT_HERSHEY_SIMPLEX) {
+Mat PlotAOG(const AOG<StateType, AttributeType>& aog) {
+	HersheyFonts font = cv::FONT_HERSHEY_SIMPLEX;
+	const int height_per_layer = 100; //pixels per layer and pixels per nodes
+	const int width_per_node = 60;
+    Scalar color(0, 0, 0); //color for circles
+	Scalar weight_color(255, 0, 100); //color for weights
+	Scalar font_color(80, 50, 255); //color for texts
+
 	const VertexId root = aog.GetRoot();
 	//auto root_parent = aog.ParentsVertices(root);
 	//if (!root_parent.empty() && !aog.GetVertexContent(root_parent[0])->IsAnd())
@@ -258,15 +272,12 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 	//std::cout << "leaf total: " << leaf_nodes.size() << std::endl;
 	//std::cout << "height: " << height << std::endl;
 
-	//pixels per layer and pixels per nodes
-	const int height_per_layer = 100;
-	const int width_per_node = 60;
+
 
 	//initialize a black canvas
-	Mat frame = Mat::zeros(layer_list.size() * height_per_layer, (leaf_nodes.size() + 1) * width_per_node, CV_8UC3);
+	Mat frame = Mat::zeros(layer_list.size() * height_per_layer, (leaf_nodes.size() + 2) * width_per_node, CV_8UC3);
 	frame = cv::Scalar(255, 255, 255);
-	const Scalar color(0, 0, 0); //color for circles
-
+	
 	//Draw nodes in the AOG
 	for (int i = 0; i < layer_list.size(); i++) {
 		int cum_nodes = 0; // record the accumulative number of leaf nodes in this layer
@@ -278,13 +289,15 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 			Point center((nodes / 2.0 + cum_nodes + 1) * width_per_node, i * height_per_layer + 50);//calculate the center to draw circle for this node
 			std::string content = aog.GetStateByVertexId(cur_vertex_id).GetContent(); //get content
 			const bool and_or = aog.GetVertexContent(cur_vertex_id)->IsAnd();//is AND or OR node 
-			std::cout << content << " id: " << cur_vertex_id << " and or: " << and_or << " " << center.x << " " << center.y << " " << std::endl;
+			//std::cout << content << " id: " << cur_vertex_id << " and or: " << and_or << " " << center.x << " " << center.y << " " << std::endl;
 			const int radius = width_per_node / 3; //set radius
 
 			Point arrow_start(center.x, center.y + width_per_node / 2.5);//the start point of line
 			if (and_or == 0) { 
 				//if it is a OR node, draw dashed line and circle
-				dash_circle(frame, center, radius, &color, 0);
+				//dash_circle(frame, center, radius, &color, 0);
+				dash_circle(frame, center, radius, color);
+				
 				//get weights of edges
 				std::unordered_map<VertexId, double> edge_weights = aog.GetOutEdgeWeights(cur_vertex_id, true);
 				for (auto w : edge_weights)
@@ -305,7 +318,7 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 					//std::string weights_string = ss.str();
 
 					//std::cout << "weight: " << std::to_string(weight) << std::endl;
-					putText(frame, std::to_string(w.second).substr(0,4), arrow_middle, font, 0.4, (255, 255, 255), 1, cv::LINE_8);
+					putText(frame, std::to_string(w.second).substr(0,4), arrow_middle, font, 0.4, weight_color, 1, cv::LINE_8);
 
 					cum_children += child_nodes;
 				}
@@ -328,8 +341,8 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 				}
 			}
 
-			Point text_center(center.x - width_per_node / 8 - content.size() / 2, center.y + 2);
-			putText(frame, content, text_center, font, 0.45, Scalar(80, 50, 255), 1, cv::LINE_8);
+			Point text_center(center.x - width_per_node / 8 - content.size(), center.y + 2);
+			putText(frame, content, text_center, font, 0.45, font_color, 1, cv::LINE_8);
 
 			cum_nodes += nodes;
 			//std::cout << num_of_child_leaf_nodes[layer_list[i][j]] << " ";
@@ -342,4 +355,4 @@ Mat PlotAOG(const AOG<StateType, AttributeType>& aog, const HersheyFonts font = 
 	return frame;
 }
 
-#endif // !PLOT_AOG_H
+#endif // !AOG_LIB_PLOT_AOG_H

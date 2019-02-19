@@ -14,7 +14,7 @@ int main()
 {
     std::cout << "Hello World!\n"; 
 	vector<string> names_list = getNamesOfClasses("data\\coco.names");
-	std::cout << names_list[10] << std::endl;
+	//std::cout << names_list[10] << std::endl;
 	
 	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\timg.jpg";
 	//predictImageYolov3(filename);
@@ -22,7 +22,9 @@ int main()
 	//predictImageHaar(filename);
 
 	Mat frame = Mat::zeros(600, 800, CV_8UC3);
-	generateRectanglesOnFrame(frame);
+	generateRectanglesOnFrame(frame, "test.txt", 1);
+	imshow("pic", frame);
+	waitKey(0);
 
 	return 0; 
 }

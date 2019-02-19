@@ -28,9 +28,8 @@
 #include <string>
 #include <iostream>
 #include "AOG.h"
-
 #include "plot_aog.h"
-#include "alpha_beta_gamma_SAOG.h"
+#include "alpha_beta_gamma_saog.h"
 
 using namespace std;
 using namespace AOG_LIB;
@@ -317,43 +316,52 @@ int main()
 	*/
 	
 
-	//another simple example
-	vector<Symbolic_Rule<string> > rules;
-	Symbolic_State<string> root("O", false);
-	Symbolic_State<string> A("A", true);
-	Symbolic_State<string> B("B", true);
-	Symbolic_State<string> C("C", true);
-	vector<Symbolic_State<string> > level1A = { A };
-	vector<Symbolic_State<string> > level1B = { B };
-	vector<Symbolic_State<string> > level1C = { C };
-	Symbolic_Rule<string> level1Arule(root, level1A);
-	Symbolic_Rule<string> level1Brule(root, level1B);
-	Symbolic_Rule<string> level1Crule(root, level1C);
-	rules.push_back(level1Arule);
-	rules.push_back(level1Brule);
-	rules.push_back(level1Crule);
+	////another simple example
+	//vector<Symbolic_Rule<string> > rules;
+	//Symbolic_State<string> root("O", false);
+	//Symbolic_State<string> A("A", true);
+	//Symbolic_State<string> B("B", true);
+	//Symbolic_State<string> C("C", true);
+	//vector<Symbolic_State<string> > level1A = { A };
+	//vector<Symbolic_State<string> > level1B = { B };
+	//vector<Symbolic_State<string> > level1C = { C };
+	//Symbolic_Rule<string> level1Arule(root, level1A);
+	//Symbolic_Rule<string> level1Brule(root, level1B);
+	//Symbolic_Rule<string> level1Crule(root, level1C);
+	//rules.push_back(level1Arule);
+	//rules.push_back(level1Brule);
+	//rules.push_back(level1Crule);
 
-	AOG<string, string> t_aog(rules);
-	t_aog.SetRoot(root);
-	
-	Mat frame = PlotAOG(t_aog);
-	imshow("image", frame);
-	waitKey(0);
+	//AOG<string, string> t_aog(rules);
+	//t_aog.SetRoot(root);
+	//
+	//Mat frame = PlotAOG(t_aog);
+	//imshow("image", frame);
+	//waitKey(0);
 
-	//AlphaBetaGammaSAOG<string, string> example_aog(rules);
+	////AlphaBetaGammaSAOG<string, string> example_aog(rules);
 
 	AOG<std::string, std::vector<double>> example_aog = AlphaBetaGammaSAOG("face", 0.45,
 		{ "right eye", "left eye" }, 0.8, "body", 0.10);
 
-	//example_aog.SaveGraph("./", "abc_grammar_example.txt");
+	////example_aog.SaveGraph("./", "abc_grammar_example.txt");
 
 	Mat frame2 = PlotAlphaBetaGammaSAOG(example_aog);
 	imshow("image2", frame2);
 	waitKey(0);
+	
+	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("test.txt");
+	std::cout << rect_list[0][0].x;
+
+	AOG<std::string, std::vector<double>> learn_aog = 
+		LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
+
+	Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
+	imshow("image3", frame3);
+	waitKey(0);
 
 	std::cout << "Hello World!\n";
 
-	
 	return 0;
 }
 

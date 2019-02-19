@@ -1,6 +1,6 @@
 #ifndef HAAR_DETECTION_H
 #define HAAR_DETECTION_H
-#endif // !HAAR_DETECTION_H
+
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -18,3 +18,5 @@ using namespace cv;
 void detectAndDisplay(Mat frame);
 
 void predictImageHaar(const string& filename, bool face_instead_of_eye = true);
+
+#endif // !HAAR_DETECTION_H

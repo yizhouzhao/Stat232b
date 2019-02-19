@@ -1,6 +1,5 @@
 #ifndef YOLO_DETECTION_H
 #define YOLO_DETECTION_H
-#endif
 
 #include <fstream>
 #include <sstream>
@@ -27,3 +26,4 @@ void predictImageYolov3(const string& filename);
 
 vector<string> getNamesOfClasses(const string& classesFile);
 
+#endif //!YOLO_DETECTION_H

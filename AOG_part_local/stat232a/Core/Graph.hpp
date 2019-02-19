@@ -5,7 +5,6 @@
 //
 // Description:      This class implements a lightweight graph library;
 //                   the graph can be in directed or undirected structure.
-
 #ifndef GRAPH_GRAPH_HPP
 #define GRAPH_GRAPH_HPP
 
@@ -696,8 +695,8 @@ namespace AOG_LIB
             file << "}\n";
             file.close();
         }
-        else
-            std::cout << "Unable to open " << dir << std::endl;
+		else {}
+            //std::cout << "Unable to open " << dir << std::endl;
 
         return graph_umap;
     }

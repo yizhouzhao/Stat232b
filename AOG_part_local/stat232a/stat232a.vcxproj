@@ -167,7 +167,7 @@
     <ClInclude Include="AOG_Vertex.h" />
     <ClInclude Include="Core\Graph.hpp" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="alpha_beta_gamma_SAOG.h" />
+    <ClInclude Include="alpha_beta_gamma_saog.h" />
     <ClInclude Include="plot_aog.h" />
     <ClInclude Include="Symbolic_Rule.h" />
     <ClInclude Include="Symbolic_State.h" />
@@ -180,6 +180,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AOG_part.cpp" />
+    <ClCompile Include="plot_aog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

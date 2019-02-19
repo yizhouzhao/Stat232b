@@ -1,0 +1,4 @@
+gamma body 403 480 599 762
+alpha face 528 713 598 761
+beta eye 559 726 577 739
+beta eye 535 727 552 739

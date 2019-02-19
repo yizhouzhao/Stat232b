@@ -27,9 +27,6 @@
     <ClInclude Include="Symbolic_Rule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\Graph.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="AOG_Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -39,7 +36,10 @@
     <ClInclude Include="plot_aog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="alpha_beta_gamma_SAOG.h">
+    <ClInclude Include="alpha_beta_gamma_saog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Graph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -49,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="AOG_part.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plot_aog.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
