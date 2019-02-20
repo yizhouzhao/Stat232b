@@ -14,7 +14,7 @@ using namespace dnn;
 using namespace std;
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& out, vector<string>& classes);
+void postprocess(Mat& frame, const vector<Mat>& out, vector<string>& classes, bool draw_person_only = true);
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame, vector<string>& classes);

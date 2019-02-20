@@ -50,8 +50,5 @@
     <ClCompile Include="AOG_part.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="plot_aog.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

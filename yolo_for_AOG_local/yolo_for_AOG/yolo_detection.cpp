@@ -37,7 +37,7 @@ vector<String> getOutputsNames(const Net& net)
 }
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes)
+void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes, bool draw_person_only)
 {
 	vector<int> classIds;
 	vector<float> confidences;
@@ -78,9 +78,14 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes)
 	// lower confidences
 	vector<int> indices;
 	NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
+
 	for (size_t i = 0; i < indices.size(); ++i)
 	{
 		int idx = indices[i];
+		if (draw_person_only) {
+			if (classIds[idx] != 0)
+				continue;
+		}
 		Rect box = boxes[idx];
 		drawPred(classIds[idx], confidences[idx], box.x, box.y,
 			box.x + box.width, box.y + box.height, frame, classes);

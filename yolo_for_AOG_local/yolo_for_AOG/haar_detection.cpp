@@ -8,20 +8,19 @@
 string window_name = "Capture - Face detection";
 RNG rng(12345);
 
-void predictImageHaar(const string& filename, bool face_instead_of_eye) {
+void predictImageHaar(const string& filename, bool eye_in_face) {
 	// PreDefined trained XML classifiers with facial features 
 	CascadeClassifier cascade, nestedCascade;
 	double scale = 1;
 
 	//-- 1. Load the cascades
-	if (face_instead_of_eye) {
-		if (!cascade.load("data\\haarcascade_frontalface_alt.xml")) {
-			printf("--(!)Error loading\n"); return;
-		}
-		if (!nestedCascade.load("data\\haarcascade_eye.xml")) {
-				printf("--(!)Error loading\n"); return;
-		}
+	if (!cascade.load("data\\haarcascade_frontalface_alt.xml")) {
+		printf("--(!)Error loading\n"); return;
 	}
+	if (!nestedCascade.load("data\\haarcascade_eye.xml")) {
+			printf("--(!)Error loading\n"); return;
+	}
+
 
 	// Open the image file
 	ifstream ifile(filename);
@@ -71,51 +70,80 @@ void predictImageHaar(const string& filename, bool face_instead_of_eye) {
 					cvRound((r.y + r.height - 1)*scale)), color, 3, 8, 0);
 		if (nestedCascade.empty())
 			continue;
-		smallImgROI = smallImg(r);
+		
+		if (eye_in_face) {
+			smallImgROI = smallImg(r);
 
-		//
+			std::vector<Rect> eyes;
+
+			////-- In each gray image, detect eyes
+			nestedCascade.detectMultiScale(smallImgROI, eyes, 1.1, 1, 0 | CASCADE_SCALE_IMAGE, Size(8, 8));
+
+			//imshow("small part", smallImgROI);
+			//waitKey(0);
+
+			for (size_t j = 0; j < eyes.size(); j++)
+			{
+				//code for draw samllROI images with circles
+				//Point center(faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5);
+				//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
+				//circle(frame, center, radius, Scalar(30, 40, 200), 4, 8, 0);
+
+				//code for draw samllROI images with rectangles
+				rectangle(frame, Point(cvRound((faces[i].x + eyes[j].x) * scale), cvRound((faces[i].y + eyes[j].y) * scale)),
+					Point(cvRound((faces[i].x + eyes[j].x + eyes[j].width - 1) * scale),
+						cvRound((faces[i].y + eyes[j].y + eyes[j].height - 1) * scale)), Scalar(30,40,220), 3, 8, 0);
+
+			//	//code for draw gray scale images with circles
+			//	//Point center(eyes[j].x + eyes[j].width*0.5, eyes[j].y + eyes[j].height*0.5);
+			//	//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
+			//	//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+
+				//rectangle(frame, Point(cvRound(eyes[j].x * scale), cvRound(eyes[j].y * scale)),
+				//	Point(cvRound((eyes[j].x + eyes[j].width - 1) * scale),
+				//		cvRound((eyes[j].y + eyes[j].height - 1) * scale)), Scalar(30,40,220), 3, 8, 0);
+			}
+
+			//// Detection of eyes int the input image 
+			//nestedCascade.detectMultiScale(smallImgROI, nestedObjects, 1.1, 2,
+			//	0 | CASCADE_SCALE_IMAGE, Size(30, 30));
+
+			//imshow("small part", smallImgROI);
+			//waitKey(0);
+			//
+			//cout << "nestedObjects len: " << nestedObjects.size() << endl;
+			//// Draw circles around eyes 
+			//for (size_t j = 0; j < nestedObjects.size(); j++)
+			//{
+			//	Rect nr = nestedObjects[j];
+			//	center.x = cvRound((r.x + nr.x + nr.width*0.5)*scale);
+			//	center.y = cvRound((r.y + nr.y + nr.height*0.5)*scale);
+			//	radius = cvRound((nr.width + nr.height)*0.25*scale);
+			//	circle(frame, center, radius, color, 3, 8, 0);
+			//}
+		}
+	}
+
+	if (!eye_in_face) {
 		std::vector<Rect> eyes;
+		////-- In each gray image, detect eyes
+		nestedCascade.detectMultiScale(gray, eyes, 1.1, 1, 0 | CASCADE_SCALE_IMAGE, Size(8, 8));
 
-		//-- In each face, detect eyes
-		nestedCascade.detectMultiScale(gray, eyes, 1.1, 1, 0 | CASCADE_SCALE_IMAGE, Size(5, 5));
-
-		//imshow("small part", smallImgROI);
-		//waitKey(0);
+		////imshow("small part", smallImgROI);
+		////waitKey(0);
 
 		for (size_t j = 0; j < eyes.size(); j++)
 		{
-			//code for draw samllROI images with circles
-			//Point center(faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5);
-			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
-			//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
-
 			//code for draw gray scale images with circles
 			//Point center(eyes[j].x + eyes[j].width*0.5, eyes[j].y + eyes[j].height*0.5);
 			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
 			//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
 
+				//draw rectangles
 			rectangle(frame, Point(cvRound(eyes[j].x * scale), cvRound(eyes[j].y * scale)),
 				Point(cvRound((eyes[j].x + eyes[j].width - 1) * scale),
-					cvRound((eyes[j].y + eyes[j].height - 1) * scale)), color, 3, 8, 0);
+					cvRound((eyes[j].y + eyes[j].height - 1) * scale)), Scalar(30, 40, 230), 3, 8, 0);
 		}
-
-		//// Detection of eyes int the input image 
-		//nestedCascade.detectMultiScale(smallImgROI, nestedObjects, 1.1, 2,
-		//	0 | CASCADE_SCALE_IMAGE, Size(30, 30));
-
-		//imshow("small part", smallImgROI);
-		//waitKey(0);
-		//
-		//cout << "nestedObjects len: " << nestedObjects.size() << endl;
-		//// Draw circles around eyes 
-		//for (size_t j = 0; j < nestedObjects.size(); j++)
-		//{
-		//	Rect nr = nestedObjects[j];
-		//	center.x = cvRound((r.x + nr.x + nr.width*0.5)*scale);
-		//	center.y = cvRound((r.y + nr.y + nr.height*0.5)*scale);
-		//	radius = cvRound((nr.width + nr.height)*0.25*scale);
-		//	circle(frame, center, radius, color, 3, 8, 0);
-		//}
 	}
 
 	// Write the frame with the detection boxes

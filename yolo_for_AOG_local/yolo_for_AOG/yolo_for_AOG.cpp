@@ -16,15 +16,16 @@ int main()
 	vector<string> names_list = getNamesOfClasses("data\\coco.names");
 	//std::cout << names_list[10] << std::endl;
 	
-	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\timg.jpg";
-	//predictImageYolov3(filename);
+	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 2.jpeg";
+	predictImageYolov3(filename);
 
-	//predictImageHaar(filename);
+	predictImageHaar(filename, false);
 
-	Mat frame = Mat::zeros(600, 800, CV_8UC3);
-	generateRectanglesOnFrame(frame, "test.txt", 1);
-	imshow("pic", frame);
-	waitKey(0);
+	//Mat frame = Mat::zeros(600, 800, CV_8UC3);
+	//generateRectanglesOnFrame(frame, "test.txt", 10);
+	//imshow("pic", frame);
+	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\demo.jpg", frame);
+	//waitKey(0);
 
 	return 0; 
 }

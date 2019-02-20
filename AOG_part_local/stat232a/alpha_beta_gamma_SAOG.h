@@ -103,7 +103,7 @@ bool RectOverlap(Rect rect1, Rect rect2) {
 	return true;
 }
 
-AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect> alpha_rects, std::vector<Rect> beta_rects, std::vector<Rect> gamma_rects) {
+AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
 	int gamma_overlap_alpha_count = 0;
 	for (size_t i = 0; i < gamma_rects.size(); ++i) {
 		for (size_t j = 0; j < alpha_rects.size(); ++j) {
