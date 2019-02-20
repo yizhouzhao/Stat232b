@@ -17,6 +17,6 @@ using namespace cv;
 /** Function Headers */
 void detectAndDisplay(Mat frame);
 
-void predictImageHaar(const string& filename, bool eye_in_face = false);
+void predictImageHaar(const string& filename, bool eye_in_face = false, string writefile = "");
 
 #endif // !HAAR_DETECTION_H

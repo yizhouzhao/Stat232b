@@ -8,7 +8,7 @@
 string window_name = "Capture - Face detection";
 RNG rng(12345);
 
-void predictImageHaar(const string& filename, bool eye_in_face) {
+void predictImageHaar(const string& filename, bool eye_in_face, string writefile) {
 	// PreDefined trained XML classifiers with facial features 
 	CascadeClassifier cascade, nestedCascade;
 	double scale = 1;
@@ -50,6 +50,13 @@ void predictImageHaar(const string& filename, bool eye_in_face) {
 	for (size_t i = 0; i < faces.size(); i++)
 	{
 		Rect r = faces[i];
+		
+		ofstream file(writefile, std::ios_base::app);
+		if (file.is_open()) {
+			file << "alpha face " << r.x << " " << r.y << " " << r.x + r.width << " " << r.y + r.height << "\n";
+			file.close();
+		}
+
 		Mat smallImgROI;
 		vector<Rect> nestedObjects;
 		Point center;
@@ -138,6 +145,12 @@ void predictImageHaar(const string& filename, bool eye_in_face) {
 			//Point center(eyes[j].x + eyes[j].width*0.5, eyes[j].y + eyes[j].height*0.5);
 			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
 			//circle(frame, center, radius, Scalar(255, 0, 0), 4, 8, 0);
+			
+			ofstream file(writefile, std::ios_base::app);
+			if (file.is_open()) {
+				file << "beta eye " << eyes[j].x << " " << eyes[j].y << " " << eyes[j].x + eyes[j].width << " " << eyes[j].y + eyes[j].height << "\n";
+				file.close();
+			}
 
 				//draw rectangles
 			rectangle(frame, Point(cvRound(eyes[j].x * scale), cvRound(eyes[j].y * scale)),
