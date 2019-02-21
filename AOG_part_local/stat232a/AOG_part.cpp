@@ -346,10 +346,10 @@ int main()
 
 	////example_aog.SaveGraph("./", "abc_grammar_example.txt");
 
-	Mat frame2 = PlotAlphaBetaGammaSAOG(example_aog);
-	imshow("image2", frame2);
-	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\saog.jpg", frame2);
-	waitKey(0);
+	//Mat frame2 = PlotAlphaBetaGammaSAOG(example_aog);
+	//imshow("image2", frame2);
+	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\saog.jpg", frame2);
+	//waitKey(0);
 
 	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_3.txt");
 	//std::cout << rect_list[0][0].x;
@@ -358,8 +358,10 @@ int main()
 		LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
 
 	Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
-	imshow("image3", frame3);
-	waitKey(0);
+	//imshow("image3", frame3);
+	//waitKey(0);
+
+	std::cout << NormalDensity1D(0, 0, 1) << std::endl;
 
 	std::cout << "Hello World!\n";
 

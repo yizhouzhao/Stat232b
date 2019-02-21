@@ -1,7 +1,9 @@
 #ifndef ALPHA_BETA_GAMMA_SAOG_H
 #define	ALPHA_BETA_GAMMA_SAOG_H
+#define MATH_PI 3.1415926
 
 #include "stdlib.h"
+#include "math.h"
 #include <fstream>
 #include <sstream>
 
@@ -49,6 +51,9 @@ AOG<std::string, std::vector<double>> AlphaBetaGammaSAOG(std::string alpha_name,
 
 	return aog;
 }
+
+
+
 
 //Plot alpha_beta_gamma_saog
 Mat PlotAlphaBetaGammaSAOG(AOG<std::string, std::vector<double>>& aog) {
@@ -141,106 +146,184 @@ std::vector<std::vector<Rect>> ReadRectFromFile(std::string filename) {
 	return rect_list;
 }
 
-AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
-	double g2a_mean_center_x = 0; //acturally the top left corner
-	double g2a_mean_center_y = 0;
-	double g2a_var_center_x = 0;
-	double g2a_var_center_y = 0;
-	double g2a_mean_scale_x = 0;
-	double g2a_mean_scale_y = 0;
-	double g2a_var_scale_x = 0;
-	double g2a_var_scale_y = 0;
+double NormalDensity1D(double x, double mean, double variance) {
+	return 1.0 / sqrt(2 * MATH_PI * variance) * exp(-0.5 * (x - mean) * (x - mean) / variance);
+}
 
-	int gamma_overlap_alpha_count = 0;
-	int gamma_overlap_alpha_count_non_duplicate = 0;
-	for (size_t i = 0; i < gamma_rects.size(); ++i) {
+std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector<Rect> channel2) {
+	double _mean_center_x = 0; //acturally the top left corner
+	double _mean_center_y = 0;
+	double _var_center_x = 0;
+	double _var_center_y = 0;
+	double _mean_scale_x = 0;
+	double _mean_scale_y = 0;
+	double _var_scale_x = 0;
+	double _var_scale_y = 0;
+
+	int _count = 0;
+	int _count_non_duplicate = 0;
+	for (size_t i = 0; i < channel1.size(); ++i) {
 		int activate = 0;
+		for (size_t j = 0; j < channel2.size(); ++j) {
+			if (RectOverlap(channel1[i], channel2[j])) {
+				activate = 1;
+				_count++;
+				double center_x = (channel2[j].x - channel1[i].x + .0) / channel1[i].width;
+				double center_y = (channel2[j].y - channel1[i].y + .0) / channel1[i].height;
+				double scale_x = (channel2[j].width + .0) / channel1[i].width;
+				double scale_y = (channel2[j].height + .0) / channel1[i].height;
+
+				if (_count > 1) {
+					_var_center_x = (_count - 2.0) / (_count - 1) * _var_center_x +
+						1.0 / _count * (center_x - _mean_center_x) * (center_x - _mean_center_x);
+					_var_center_y = (_count - 2.0) / (_count - 1) * _var_center_y +
+						1.0 / _count * (center_y - _mean_center_y) * (center_y - _mean_center_y);
+					_var_scale_x = (_count - 2.0) / (_count - 1) * _var_scale_x +
+						1.0 / _count * (scale_x - _mean_scale_x) * (scale_x - _mean_scale_x);
+					_var_scale_y = (_count - 2.0) / (_count - 1) * _var_scale_y +
+						1.0 / _count * (scale_y - _mean_scale_y) * (scale_y - _mean_scale_y);
+				}
+
+				_mean_center_x = (center_x + (_count - 1) * _mean_center_x) / _count;
+				_mean_center_y = (center_y + (_count - 1) * _mean_center_y) / _count;
+				_mean_scale_x = (scale_x + (_count - 1) * _mean_scale_x) / _count;
+				_mean_scale_y = (scale_y + (_count - 1) * _mean_scale_y) / _count;
+			}
+		}
+		_count_non_duplicate += activate;
+	}
+	
+	return std::vector<double>({ double(_count), double(_count_non_duplicate), 
+		_mean_center_x, _mean_center_y, _var_center_x, _var_center_y,
+		_mean_scale_x, _mean_scale_y , _var_scale_x , _var_scale_y });
+}
+
+
+AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
+	std::vector<double> g2a_info = LearnMeanAndVariance(gamma_rects, alpha_rects);
+
+	
+	double gamma_to_alpha = g2a_info[1] / gamma_rects.size(); //????????????????????????????????????
+	std::cout << "\n gamma_overlap_alpha_count " << gamma_to_alpha << std::endl;
+
+	std::cout << "gamma:: position " << g2a_info[2] << " " << g2a_info[3] << " " << g2a_info[4] << " " << g2a_info[5] << std::endl;
+	std::cout << "gamma:: scale " << g2a_info[6] << " " << g2a_info[7] << " " << g2a_info[8] << " " << g2a_info[9] << std::endl;
+
+	std::vector<double> a2b_info = LearnMeanAndVariance(alpha_rects, beta_rects);
+
+	std::cout << "\n beta_overlap_alpha_count " << a2b_info[0] << std::endl;
+	double alpha_to_beta = a2b_info[1] / alpha_rects.size(); //????????????????????????????????????
+	std::cout << "\n beta_overlap_alpha_count " << alpha_to_beta << std::endl;
+
+	std::cout << "beta:: position " << a2b_info[2] << " " << a2b_info[3] << " " << a2b_info[4] << " " << a2b_info[5] << std::endl;
+	std::cout << "beta:: scale " << a2b_info[6] << " " << a2b_info[7] << " " << a2b_info[8] << " " << a2b_info[9] << std::endl;
+
+	std::vector<double> g2b_info = LearnMeanAndVariance(gamma_rects, beta_rects);
+
+	
+	double gamma_to_beta = g2b_info[1] / gamma_rects.size(); //????????????????????????????????????
+	std::cout << "\n beta_overlap_gamma_count " << gamma_to_beta << std::endl;
+
+	std::cout << "gamma->beta:: position " << g2b_info[2] << " " << g2b_info[3] << " " << g2b_info[4] << " " << g2b_info[5] << std::endl;
+	std::cout << "gamma->beta:: scale " << g2b_info[6] << " " << g2b_info[7] << " " << g2b_info[8] << " " << g2b_info[9] << std::endl;
+
+
+	std::vector<double> alpha_scores(alpha_rects.size(), 0);
+	std::vector<double> beta_scores(beta_rects.size(), 0);
+	std::vector<double> gamma_scores(gamma_rects.size(), 0);
+
+	std::vector<std::vector<Rect>> group_objects;
+	std::vector<double> group_scores;
+
+	double g2a_scale = NormalDensity1D(0, 0, g2a_info[4]) * NormalDensity1D(0, 0, g2a_info[5]) *
+		NormalDensity1D(0, 0, g2a_info[8]) * NormalDensity1D(0, 0, g2a_info[9]);
+	double g2b_scale = NormalDensity1D(0, 0, g2b_info[4]) * NormalDensity1D(0, 0, g2b_info[5]) *
+		NormalDensity1D(0, 0, g2b_info[8]) * NormalDensity1D(0, 0, g2b_info[9]);
+	double a2b_scale = NormalDensity1D(0, 0, a2b_info[4]) * NormalDensity1D(0, 0, a2b_info[5]) *
+		NormalDensity1D(0, 0, a2b_info[8]) * NormalDensity1D(0, 0, a2b_info[9]);
+
+	std::cout << "scalerL: " << g2a_scale << " " << g2b_scale << " " << a2b_scale << " " << std::endl;
+
+	for (size_t i = 0; i < gamma_rects.size(); ++i) {
 		for (size_t j = 0; j < alpha_rects.size(); ++j) {
 			if (RectOverlap(gamma_rects[i], alpha_rects[j])) {
-				activate = 1;
-				gamma_overlap_alpha_count++;
 				double center_x = (alpha_rects[j].x - gamma_rects[i].x + .0) / gamma_rects[i].width;
 				double center_y = (alpha_rects[j].y - gamma_rects[i].y + .0) / gamma_rects[i].height;
 				double scale_x = (alpha_rects[j].width + .0) / gamma_rects[i].width;
 				double scale_y = (alpha_rects[j].height + .0) / gamma_rects[i].height;
 
-				if (gamma_overlap_alpha_count > 1) {
-					g2a_var_center_x = (gamma_overlap_alpha_count - 2.0) / (gamma_overlap_alpha_count - 1) * g2a_var_center_x +
-						1.0 / gamma_overlap_alpha_count * (center_x - g2a_mean_center_x) * (center_x - g2a_mean_center_x);
-					g2a_var_center_y = (gamma_overlap_alpha_count - 2.0) / (gamma_overlap_alpha_count - 1) * g2a_var_center_y +
-						1.0 / gamma_overlap_alpha_count * (center_y - g2a_mean_center_y) * (center_y - g2a_mean_center_y);
-					g2a_var_scale_x = (gamma_overlap_alpha_count - 2.0) / (gamma_overlap_alpha_count - 1) * g2a_var_scale_x +
-						1.0 / gamma_overlap_alpha_count * (scale_x - g2a_mean_scale_x) * (scale_x - g2a_mean_scale_x);
-					g2a_var_scale_y = (gamma_overlap_alpha_count - 2.0) / (gamma_overlap_alpha_count - 1) * g2a_var_scale_y +
-						1.0 / gamma_overlap_alpha_count * (scale_y - g2a_mean_scale_y) * (scale_y - g2a_mean_scale_y);
-				}
+				double add_score = NormalDensity1D(center_x, g2a_info[2], g2a_info[4]) *
+					NormalDensity1D(center_y, g2a_info[3], g2a_info[5]) *
+					NormalDensity1D(scale_x, g2a_info[6], g2a_info[8]) *
+					NormalDensity1D(scale_y, g2a_info[7], g2a_info[9]);
 
-				g2a_mean_center_x = (center_x + (gamma_overlap_alpha_count - 1) * g2a_mean_center_x) / gamma_overlap_alpha_count;
-				g2a_mean_center_y = (center_y + (gamma_overlap_alpha_count - 1) * g2a_mean_center_y) / gamma_overlap_alpha_count;
-				g2a_mean_scale_x = (scale_x + (gamma_overlap_alpha_count - 1) * g2a_mean_scale_x) / gamma_overlap_alpha_count;
-				g2a_mean_scale_y = (scale_y + (gamma_overlap_alpha_count - 1) * g2a_mean_scale_y) / gamma_overlap_alpha_count;
+				add_score /= g2a_scale;
+
+				//std::cout << "add score: " << i << " " << j << " " << " " << add_score << std::endl;
+				gamma_scores[i] += add_score * gamma_to_alpha;
+				alpha_scores[j] += add_score * gamma_to_alpha;
 			}
 		}
-		gamma_overlap_alpha_count_non_duplicate += activate;
 	}
 
-	std::cout << "\n gamma_overlap_alpha_count " << gamma_overlap_alpha_count_non_duplicate << std::endl;
-	double gamma_to_alpha = gamma_overlap_alpha_count_non_duplicate / (gamma_rects.size() + .0);
+	for (size_t j = 0; j < alpha_rects.size(); ++j) {
+		for (size_t k = 0; k < beta_rects.size(); ++k) {
+			if (RectOverlap(alpha_rects[j], beta_rects[k])) {
+				double center_x = (beta_rects[k].x - alpha_rects[j].x + .0) / alpha_rects[j].width;
+				double center_y = (beta_rects[k].y - alpha_rects[j].y + .0) / alpha_rects[j].height;
+				double scale_x = (beta_rects[k].width + .0) / alpha_rects[j].width;
+				double scale_y = (beta_rects[k].height + .0) / alpha_rects[j].height;
 
-	std::cout << "gamma:: position " << g2a_mean_center_x << " " << g2a_mean_center_y << " " << g2a_var_center_x << " " << g2a_var_center_y << std::endl;
-	std::cout << "gamma:: scale " << g2a_mean_scale_x << " " << g2a_mean_scale_y << " " << g2a_var_scale_x << " " << g2a_var_scale_y << std::endl;
+				double add_score = NormalDensity1D(center_x, a2b_info[2], a2b_info[4]) *
+					NormalDensity1D(center_y, a2b_info[3], a2b_info[5]) *
+					NormalDensity1D(scale_x, a2b_info[6], a2b_info[8]) *
+					NormalDensity1D(scale_y, a2b_info[7], a2b_info[9]);
 
-	double b2a_mean_center_x = 0; //acturally the top left corner
-	double b2a_mean_center_y = 0;
-	double b2a_var_center_x = 0;
-	double b2a_var_center_y = 0;
-	double b2a_mean_scale_x = 0;
-	double b2a_mean_scale_y = 0;
-	double b2a_var_scale_x = 0;
-	double b2a_var_scale_y = 0;
-
-	int beta_overlap_alpha_count = 0;
-	int beta_overlap_alpha_count_non_duplicate = 0;
-	for (size_t i = 0; i < beta_rects.size(); ++i) {
-		int activate = 0;
-		for (size_t j = 0; j < alpha_rects.size(); ++j) {
-			if (RectOverlap(beta_rects[i], alpha_rects[j])) {
-				activate = 1;
-				beta_overlap_alpha_count++;
-				double center_x = (beta_rects[i].x - alpha_rects[j].x + .0) / alpha_rects[j].width;
-				double center_y = (beta_rects[i].y - alpha_rects[j].y + .0) / alpha_rects[j].height;
-				double scale_x = (beta_rects[i].width + .0) / alpha_rects[j].width;
-				double scale_y = (beta_rects[i].height + .0) / alpha_rects[j].height;
-
-				if (beta_overlap_alpha_count > 1) {
-					b2a_var_center_x = (beta_overlap_alpha_count - 2.0) / (beta_overlap_alpha_count - 1) * b2a_var_center_x +
-						1.0 / beta_overlap_alpha_count * (center_x - b2a_mean_center_x) * (center_x - b2a_mean_center_x);
-					b2a_var_center_y = (beta_overlap_alpha_count - 2.0) / (beta_overlap_alpha_count - 1) * b2a_var_center_y +
-						1.0 / beta_overlap_alpha_count * (center_y - b2a_mean_center_y) * (center_y - b2a_mean_center_y);
-					b2a_var_scale_x = (beta_overlap_alpha_count - 2.0) / (beta_overlap_alpha_count - 1) * b2a_var_scale_x +
-						1.0 / beta_overlap_alpha_count * (scale_x - b2a_mean_scale_x) * (scale_x - b2a_mean_scale_x);
-					b2a_var_scale_y = (beta_overlap_alpha_count - 2.0) / (beta_overlap_alpha_count - 1) * b2a_var_scale_y +
-						1.0 / beta_overlap_alpha_count * (scale_y - b2a_mean_scale_y) * (scale_y - b2a_mean_scale_y);
-				}
-
-				b2a_mean_center_x = (center_x + (beta_overlap_alpha_count - 1) * b2a_mean_center_x) / beta_overlap_alpha_count;
-				b2a_mean_center_y = (center_y + (beta_overlap_alpha_count - 1) * b2a_mean_center_y) / beta_overlap_alpha_count;
-				b2a_mean_scale_x = (scale_x + (beta_overlap_alpha_count - 1) * b2a_mean_scale_x) / beta_overlap_alpha_count;
-				b2a_mean_scale_y = (scale_y + (beta_overlap_alpha_count - 1) * b2a_mean_scale_y) / beta_overlap_alpha_count;
+				add_score /= a2b_scale;
+				//std::cout << "add score: j k " << j  << " " << k << " " << " " << add_score << std::endl;
+				beta_scores[k] += add_score  * alpha_to_beta;
+				alpha_scores[j] += add_score  * alpha_to_beta;
 			}
 		}
-		beta_overlap_alpha_count_non_duplicate += activate;
+	}
+	
+	for (size_t i = 0; i < gamma_rects.size(); ++i) {
+		for (size_t k = 0; k < beta_rects.size(); ++k) {
+			if (RectOverlap(gamma_rects[i], beta_rects[k])) {
+				double center_x = (beta_rects[k].x - gamma_rects[i].x + .0) / gamma_rects[i].width;
+				double center_y = (beta_rects[k].y - gamma_rects[i].y + .0) / gamma_rects[i].height;
+				double scale_x = (beta_rects[k].width + .0) / gamma_rects[i].width;
+				double scale_y = (beta_rects[k].height + .0) / gamma_rects[i].height;
+
+				double add_score = NormalDensity1D(center_x, g2b_info[2], g2b_info[4]) *
+					NormalDensity1D(center_y, g2b_info[3], g2b_info[5]) *
+					NormalDensity1D(scale_x, g2b_info[6], g2b_info[8]) *
+					NormalDensity1D(scale_y, g2b_info[7], g2b_info[9]);
+
+				add_score /= g2b_scale;
+				//std::cout << "add score: i, k " << i << " " << k << " " << " " << add_score << std::endl;
+				beta_scores[k] += add_score * gamma_to_beta;
+				gamma_scores[i] += add_score * gamma_to_beta;
+			}
+		}
 	}
 
-	std::cout << "\n beta_overlap_alpha_count " << beta_overlap_alpha_count_non_duplicate << std::endl;
-	double beta_to_alpha = beta_overlap_alpha_count_non_duplicate / (beta_rects.size() + .0);
+	for (int i = 0; i < gamma_rects.size(); i++) {
+		std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
+	}
 
-	std::cout << "beta:: position " << b2a_mean_center_x << " " << b2a_mean_center_y << " " << b2a_var_center_x << " " << b2a_var_center_y << std::endl;
-	std::cout << "beta:: scale " << b2a_mean_scale_x << " " << b2a_mean_scale_y << " " << b2a_var_scale_x << " " << b2a_var_scale_y << std::endl;
+	for (int j = 0; j < alpha_rects.size(); j++) {
+		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
+	}
 
-	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, beta_to_alpha, "gamma", gamma_to_alpha);
+	for (int k = 0; k < beta_rects.size(); k++) {
+		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
+	}
+
+	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);
 	return aog;
 }
+
 
 
 #endif // !ALPHA_BETA_GAMMA_SAOG_H
