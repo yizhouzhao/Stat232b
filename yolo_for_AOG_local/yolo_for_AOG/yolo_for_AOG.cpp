@@ -17,9 +17,9 @@ int main()
 	//std::cout << names_list[10] << std::endl;
 	
 	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 3.jpeg";
-	predictImageYolov3(filename, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_3.txt");
+	predictImageYolov3(filename, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_31.txt");
 
-	predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_3.txt");
+	predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_31.txt");
 
 	//Mat frame = Mat::zeros(600, 800, CV_8UC3);
 	//generateRectanglesOnFrame(frame, "test.txt", 10);

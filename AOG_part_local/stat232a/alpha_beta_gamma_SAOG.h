@@ -202,7 +202,6 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
 	std::vector<double> g2a_info = LearnMeanAndVariance(gamma_rects, alpha_rects);
 
-	
 	double gamma_to_alpha = g2a_info[1] / gamma_rects.size(); //????????????????????????????????????
 	std::cout << "\n gamma_overlap_alpha_count " << gamma_to_alpha << std::endl;
 
@@ -308,16 +307,43 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 		}
 	}
 
+	Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
+	frame = cv::Scalar(255, 255, 255);
+
 	for (int i = 0; i < gamma_rects.size(); i++) {
 		std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
+		Scalar color(180, 100, 20);
+		rectangle(frame, gamma_rects[i], color, 4, 8, 0);
 	}
 
 	for (int j = 0; j < alpha_rects.size(); j++) {
 		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
+		if (alpha_scores[j] < 0.5)
+			continue;
+		Scalar color(20, 180, 100);
+		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
 	}
 
 	for (int k = 0; k < beta_rects.size(); k++) {
 		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
+		if (beta_scores[k] < 1) continue;
+		Scalar color(100, 20, 180);
+		rectangle(frame, beta_rects[k], color, 4, 8, 0);
+	}
+
+	cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
+	imshow("frame", frame);
+	waitKey(0);
+
+	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
+
+	std::vector<Rect> reconstruced_gamma_rects;
+	std::vector<Rect> reconstruced_alpha_rects;
+	std::vector<Rect> reconstruced_beta_rects;
+	for (int j = 0; j < alpha_rects.size(); j++) {
+		if (alpha_scores[j] < 0.5)
+			continue;
+
 	}
 
 	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);

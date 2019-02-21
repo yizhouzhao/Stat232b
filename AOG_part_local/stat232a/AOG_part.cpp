@@ -351,7 +351,7 @@ int main()
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\saog.jpg", frame2);
 	//waitKey(0);
 
-	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_3.txt");
+	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_31.txt");
 	//std::cout << rect_list[0][0].x;
 
 	AOG<std::string, std::vector<double>> learn_aog = 

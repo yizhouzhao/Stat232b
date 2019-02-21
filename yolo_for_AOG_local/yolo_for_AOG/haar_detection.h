@@ -11,6 +11,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#include "yolo_detection.h"
+
 using namespace std;
 using namespace cv;
 

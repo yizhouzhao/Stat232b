@@ -139,8 +139,16 @@ void predictImageHaar(const string& filename, bool eye_in_face, string writefile
 		////imshow("small part", smallImgROI);
 		////waitKey(0);
 
-		for (size_t j = 0; j < eyes.size(); j++)
+		// Initialize the parameters
+		float confThreshold = 0.5f; // Confidence threshold
+		float nmsThreshold = 0.15f;  // Non-maximum suppression threshold
+		std::vector<int> indices;
+		std::vector<float> confidences(eyes.size(), 1.0f);
+		NMSBoxes(eyes, confidences, confThreshold, nmsThreshold, indices);
+
+		for (size_t j = 0; j < indices.size(); j++)
 		{
+			int idx = indices[j];
 			//code for draw gray scale images with circles
 			//Point center(eyes[j].x + eyes[j].width*0.5, eyes[j].y + eyes[j].height*0.5);
 			//int radius = cvRound((eyes[j].width + eyes[j].height)*0.25);
@@ -148,14 +156,14 @@ void predictImageHaar(const string& filename, bool eye_in_face, string writefile
 			
 			ofstream file(writefile, std::ios_base::app);
 			if (file.is_open()) {
-				file << "beta eye " << eyes[j].x << " " << eyes[j].y << " " << eyes[j].x + eyes[j].width << " " << eyes[j].y + eyes[j].height << "\n";
+				file << "beta eye " << eyes[idx].x << " " << eyes[idx].y << " " << eyes[idx].x + eyes[idx].width << " " << eyes[idx].y + eyes[idx].height << "\n";
 				file.close();
 			}
 
 				//draw rectangles
-			rectangle(frame, Point(cvRound(eyes[j].x * scale), cvRound(eyes[j].y * scale)),
-				Point(cvRound((eyes[j].x + eyes[j].width - 1) * scale),
-					cvRound((eyes[j].y + eyes[j].height - 1) * scale)), Scalar(30, 40, 230), 3, 8, 0);
+			rectangle(frame, Point(cvRound(eyes[idx].x * scale), cvRound(eyes[idx].y * scale)),
+				Point(cvRound((eyes[idx].x + eyes[idx].width - 1) * scale),
+					cvRound((eyes[idx].y + eyes[idx].height - 1) * scale)), Scalar(30, 40, 230), 3, 8, 0);
 		}
 	}
 
