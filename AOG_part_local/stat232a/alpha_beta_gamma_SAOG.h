@@ -6,6 +6,7 @@
 #include "math.h"
 #include <fstream>
 #include <sstream>
+#include <algorithm> 
 
 #include "AOG.h"
 #include "plot_aog.h"
@@ -108,6 +109,25 @@ bool RectOverlap(Rect rect1, Rect rect2) {
 	return true;
 }
 
+//determine a rect is inside another
+bool RectInside(Rect rect1, Rect rect2) {
+	if (rect1.x >= rect2.x &&
+		rect1.y >= rect2.y &&
+		rect2.x + rect2.width >= rect1.x + rect1.width &&
+		rect2.y + rect2.height >= rect1.y + rect1.height
+		)
+		return true;
+
+	else if (rect2.x >= rect1.x &&
+		rect2.y >= rect1.y &&
+		rect1.x + rect1.width >= rect2.x + rect2.width &&
+		rect1.y + rect1.height >= rect2.y + rect2.height
+		)
+		return true;
+
+	return false;
+}
+
 std::vector<std::vector<Rect>> ReadRectFromFile(std::string filename) {
 	std::vector<std::vector<Rect>> rect_list;
 	ifstream file(filename);
@@ -165,7 +185,7 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 	for (size_t i = 0; i < channel1.size(); ++i) {
 		int activate = 0;
 		for (size_t j = 0; j < channel2.size(); ++j) {
-			if (RectOverlap(channel1[i], channel2[j])) {
+			if (RectInside(channel1[i], channel2[j])) {
 				activate = 1;
 				_count++;
 				double center_x = (channel2[j].x - channel1[i].x + .0) / channel1[i].width;
@@ -198,8 +218,12 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 		_mean_scale_x, _mean_scale_y , _var_scale_x , _var_scale_y });
 }
 
-
 AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
+	//treshold
+	const double alpha_threshold = 0.3;
+	const double beta_threshold = 0.5;
+	const double gamma_threshold = 0.5;
+	
 	std::vector<double> g2a_info = LearnMeanAndVariance(gamma_rects, alpha_rects);
 
 	double gamma_to_alpha = g2a_info[1] / gamma_rects.size(); //????????????????????????????????????
@@ -241,11 +265,11 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	double a2b_scale = NormalDensity1D(0, 0, a2b_info[4]) * NormalDensity1D(0, 0, a2b_info[5]) *
 		NormalDensity1D(0, 0, a2b_info[8]) * NormalDensity1D(0, 0, a2b_info[9]);
 
-	std::cout << "scalerL: " << g2a_scale << " " << g2b_scale << " " << a2b_scale << " " << std::endl;
+	//std::cout << "scalerL: " << g2a_scale << " " << g2b_scale << " " << a2b_scale << " " << std::endl;
 
 	for (size_t i = 0; i < gamma_rects.size(); ++i) {
 		for (size_t j = 0; j < alpha_rects.size(); ++j) {
-			if (RectOverlap(gamma_rects[i], alpha_rects[j])) {
+			if (RectInside(gamma_rects[i], alpha_rects[j])) {
 				double center_x = (alpha_rects[j].x - gamma_rects[i].x + .0) / gamma_rects[i].width;
 				double center_y = (alpha_rects[j].y - gamma_rects[i].y + .0) / gamma_rects[i].height;
 				double scale_x = (alpha_rects[j].width + .0) / gamma_rects[i].width;
@@ -267,7 +291,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 	for (size_t j = 0; j < alpha_rects.size(); ++j) {
 		for (size_t k = 0; k < beta_rects.size(); ++k) {
-			if (RectOverlap(alpha_rects[j], beta_rects[k])) {
+			if (RectInside(alpha_rects[j], beta_rects[k])) {
 				double center_x = (beta_rects[k].x - alpha_rects[j].x + .0) / alpha_rects[j].width;
 				double center_y = (beta_rects[k].y - alpha_rects[j].y + .0) / alpha_rects[j].height;
 				double scale_x = (beta_rects[k].width + .0) / alpha_rects[j].width;
@@ -288,7 +312,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	
 	for (size_t i = 0; i < gamma_rects.size(); ++i) {
 		for (size_t k = 0; k < beta_rects.size(); ++k) {
-			if (RectOverlap(gamma_rects[i], beta_rects[k])) {
+			if (RectInside(gamma_rects[i], beta_rects[k])) {
 				double center_x = (beta_rects[k].x - gamma_rects[i].x + .0) / gamma_rects[i].width;
 				double center_y = (beta_rects[k].y - gamma_rects[i].y + .0) / gamma_rects[i].height;
 				double scale_x = (beta_rects[k].width + .0) / gamma_rects[i].width;
@@ -307,44 +331,182 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 		}
 	}
 
-	Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
-	frame = cv::Scalar(255, 255, 255);
+	/* visualize part
+	//Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
+	//frame = cv::Scalar(255, 255, 255);
+	//for (int i = 0; i < gamma_rects.size(); i++) {
+	//	std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
+	//	Scalar color(180, 100, 20);
+	//	rectangle(frame, gamma_rects[i], color, 4, 8, 0);
+	//}
 
-	for (int i = 0; i < gamma_rects.size(); i++) {
-		std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
-		Scalar color(180, 100, 20);
-		rectangle(frame, gamma_rects[i], color, 4, 8, 0);
-	}
+	//for (int j = 0; j < alpha_rects.size(); j++) {
+	//	std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
+	//	if (alpha_scores[j] < alpha_threshold) continue;
+	//	Scalar color(20, 180, 100);
+	//	rectangle(frame, alpha_rects[j], color, 4, 8, 0);
+	//}
 
-	for (int j = 0; j < alpha_rects.size(); j++) {
-		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
-		if (alpha_scores[j] < 0.5)
-			continue;
-		Scalar color(20, 180, 100);
-		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
-	}
+	//for (int k = 0; k < beta_rects.size(); k++) {
+	//	std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
+	//	//if (beta_scores[k] < beta_threshold) continue;
+	//	Scalar color(100, 20, 180);
+	//	rectangle(frame, beta_rects[k], color, 4, 8, 0);
+	//}
 
-	for (int k = 0; k < beta_rects.size(); k++) {
-		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
-		if (beta_scores[k] < 1) continue;
-		Scalar color(100, 20, 180);
-		rectangle(frame, beta_rects[k], color, 4, 8, 0);
-	}
-
-	cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
-	imshow("frame", frame);
-	waitKey(0);
+	//cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
+	//imshow("frame", frame);
+	//waitKey(0);
 
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
+	*/
 
 	std::vector<Rect> reconstruced_gamma_rects;
 	std::vector<Rect> reconstruced_alpha_rects;
 	std::vector<Rect> reconstruced_beta_rects;
+
+	std::vector<bool> visited_alpha_rects(alpha_rects.size(), false);
+	std::vector<bool> visited_beta_rects(beta_rects.size(), false);
+	std::vector<bool> visited_gamma_rects(gamma_rects.size(), false);
+
+	//Reconstruct BETA_GAMMA from ALPHA
 	for (int j = 0; j < alpha_rects.size(); j++) {
-		if (alpha_scores[j] < 0.5)
+		if (alpha_scores[j] < alpha_threshold)
 			continue;
 
+		visited_alpha_rects[j] = true;
+
+		int visited_gamma_index = -1;
+		int visited_gamma_max_score = 0;
+
+		for (int i = 0; i < gamma_rects.size(); ++i) {
+			if (RectInside(gamma_rects[i], alpha_rects[j]) && !visited_gamma_rects[i]) {
+				if (visited_gamma_max_score < gamma_scores[i]) {
+					visited_gamma_max_score = gamma_scores[i];
+					visited_gamma_index = i;
+				}
+			}
+		}
+		
+		int visited_beta_index = -1;
+		int visited_beta_max_score = 0;
+
+		for (int k = 0; k < beta_rects.size(); ++k) {
+			if (RectInside(beta_rects[k], alpha_rects[j]) && !visited_beta_rects[k]) {
+				if (visited_beta_max_score < beta_scores[k]) {
+					visited_beta_max_score = beta_scores[k];
+					visited_beta_index = k;
+				}
+			}
+		}
+		
+		//reconstruct alpha channel
+		reconstruced_alpha_rects.push_back(alpha_rects[j]);
+
+		//reconstruct gamma channel
+		if (visited_gamma_index >= 0) {
+			visited_gamma_rects[visited_gamma_index] = true;
+			reconstruced_gamma_rects.push_back(gamma_rects[visited_gamma_index]);
+		}
+		else {
+			//return std::vector<double>({ double(_count), double(_count_non_duplicate),
+			//_mean_center_x, _mean_center_y, _var_center_x, _var_center_y,
+			//_mean_scale_x, _mean_scale_y , _var_scale_x , _var_scale_y });
+
+			double scale_x = alpha_rects[j].width / g2a_info[6];
+			double scale_y = alpha_rects[j].height / g2a_info[7];
+			double center_x = alpha_rects[j].x - g2a_info[2] * scale_x;
+			double center_y = alpha_rects[j].y - g2a_info[3] * scale_y;
+			
+			reconstruced_gamma_rects.push_back(Rect(cvRound(center_x), cvRound(center_y),
+				cvRound(scale_x), cvRound(scale_y)));
+		}
+
+		//reconstruct beta channel
+		if (visited_beta_index >= 0) {
+			visited_beta_rects[visited_beta_index] = true;
+			reconstruced_beta_rects.push_back(beta_rects[visited_beta_index]);
+		}
+		else {
+			//return std::vector<double>({ double(_count), double(_count_non_duplicate),
+			//_mean_center_x, _mean_center_y, _var_center_x, _var_center_y,
+			//_mean_scale_x, _mean_scale_y , _var_scale_x , _var_scale_y });
+
+			double scale_x = alpha_rects[j].width * a2b_info[6];
+			double scale_y = alpha_rects[j].height * a2b_info[7];
+			double center_x = alpha_rects[j].x + a2b_info[2] * scale_x;
+			double center_y = alpha_rects[j].y + a2b_info[3] * scale_y;
+
+			reconstruced_beta_rects.push_back(Rect(cvRound(center_x), cvRound(center_y),
+				cvRound(scale_x), cvRound(scale_y)));
+		}
 	}
+
+	Mat frame2 = Mat::zeros(3024, 4032, CV_8UC3);
+	frame2 = cv::Scalar(255, 255, 255);
+	//CV_Assert(reconstruced_gamma_rects.size() == reconstruced_beta_rects.size());
+	//CV_Assert(reconstruced_alpha_rects.size() == reconstruced_beta_rects.size());
+
+	//Reconstruct ALPHA from BETA_GAMMA
+	for (size_t i = 0; i < gamma_rects.size(); i++) {
+		if (gamma_scores[i] < gamma_threshold || visited_gamma_rects[i])
+			continue;
+
+		//std::cout << "gamma activated: " << i << std::endl;
+
+		//Mat t_frame = Mat::zeros(3024, 4032, CV_8UC3);
+		//t_frame = cv::Scalar(255, 255, 255);
+
+		//rectangle(t_frame, gamma_rects[i], Scalar(0, 0, 0), 5, 8, 0);
+
+		visited_gamma_rects[i] = true;
+		double scale_x = gamma_rects[i].width * g2a_info[6];
+		double scale_y = gamma_rects[i].height * g2a_info[7];
+		double center_x = gamma_rects[i].x + g2a_info[2] * gamma_rects[i].width;
+		double center_y = gamma_rects[i].y + g2a_info[3] * gamma_rects[i].height;
+
+		Rect alpha_reconstructed(cvRound(center_x), cvRound(center_y),
+			cvRound(scale_x), cvRound(scale_y));
+		//reconstruced_beta_rects.push_back();
+		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
+		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
+		//imshow("t_frame", t_frame);
+		//waitKey(0);
+
+		bool has_beta = 0;
+		for (size_t k = 0; k < beta_rects.size(); ++k) {
+			if (RectInside(alpha_reconstructed, beta_rects[k]) && !visited_beta_rects[k]) { // || 
+				visited_beta_rects[k] = true;
+				//std::cout << "beta activated: " << k << std::endl;
+				reconstruced_beta_rects.push_back(beta_rects[k]);
+				reconstruced_gamma_rects.push_back(gamma_rects[i]);
+				reconstruced_alpha_rects.push_back(alpha_reconstructed);
+			}
+		}
+	}
+
+	for (int i = 0; i < reconstruced_gamma_rects.size(); i++) {
+		//std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
+		Scalar color(180, 100, 20);
+		rectangle(frame2, reconstruced_gamma_rects[i], color, 4, 8, 0);
+	}
+
+	for (int j = 0; j < reconstruced_alpha_rects.size(); j++) {
+		//std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
+		Scalar color(20, 180, 100);
+		rectangle(frame2, reconstruced_alpha_rects[j], color, 4, 8, 0);
+	}
+
+	for (int k = 0; k < reconstruced_beta_rects.size(); k++) {
+		//std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
+		Scalar color(100, 20, 180);
+		rectangle(frame2, reconstruced_beta_rects[k], color, 4, 8, 0);
+	}
+
+	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
+	imshow("frame2", frame2);
+	waitKey(0);
+	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_reconstrued.jpg", frame2);
 
 	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);
 	return aog;
