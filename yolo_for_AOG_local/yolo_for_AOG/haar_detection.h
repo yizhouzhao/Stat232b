@@ -1,7 +1,6 @@
 #ifndef HAAR_DETECTION_H
 #define HAAR_DETECTION_H
 
-
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"

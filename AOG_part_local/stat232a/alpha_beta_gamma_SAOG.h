@@ -220,7 +220,7 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 
 AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
 	//treshold
-	const double alpha_threshold = 0.3;
+	const double alpha_threshold = 0.15;
 	const double beta_threshold = 0.5;
 	const double gamma_threshold = 0.5;
 	
@@ -331,35 +331,34 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 		}
 	}
 
-	/* visualize part
-	//Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
-	//frame = cv::Scalar(255, 255, 255);
-	//for (int i = 0; i < gamma_rects.size(); i++) {
-	//	std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
-	//	Scalar color(180, 100, 20);
-	//	rectangle(frame, gamma_rects[i], color, 4, 8, 0);
-	//}
+	// visualize part
+	Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
+	frame = cv::Scalar(255, 255, 255);
+	for (int i = 0; i < gamma_rects.size(); i++) {
+		std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
+		Scalar color(180, 100, 20);
+		rectangle(frame, gamma_rects[i], color, 4, 8, 0);
+	}
 
-	//for (int j = 0; j < alpha_rects.size(); j++) {
-	//	std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
-	//	if (alpha_scores[j] < alpha_threshold) continue;
-	//	Scalar color(20, 180, 100);
-	//	rectangle(frame, alpha_rects[j], color, 4, 8, 0);
-	//}
+	for (int j = 0; j < alpha_rects.size(); j++) {
+		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
+		//if (alpha_scores[j] < alpha_threshold) continue;
+		Scalar color(20, 180, 100);
+		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
+	}
 
-	//for (int k = 0; k < beta_rects.size(); k++) {
-	//	std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
-	//	//if (beta_scores[k] < beta_threshold) continue;
-	//	Scalar color(100, 20, 180);
-	//	rectangle(frame, beta_rects[k], color, 4, 8, 0);
-	//}
+	for (int k = 0; k < beta_rects.size(); k++) {
+		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
+		//if (beta_scores[k] < beta_threshold) continue;
+		Scalar color(100, 20, 180);
+		rectangle(frame, beta_rects[k], color, 4, 8, 0);
+	}
 
-	//cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
-	//imshow("frame", frame);
-	//waitKey(0);
+	cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
+	imshow("frame", frame);
+	waitKey(0);
 
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
-	*/
 
 	std::vector<Rect> reconstruced_gamma_rects;
 	std::vector<Rect> reconstruced_alpha_rects;
@@ -434,8 +433,8 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 			double scale_x = alpha_rects[j].width * a2b_info[6];
 			double scale_y = alpha_rects[j].height * a2b_info[7];
-			double center_x = alpha_rects[j].x + a2b_info[2] * scale_x;
-			double center_y = alpha_rects[j].y + a2b_info[3] * scale_y;
+			double center_x = alpha_rects[j].x + a2b_info[2] * alpha_rects[j].width;
+			double center_y = alpha_rects[j].y + a2b_info[3] * alpha_rects[j].height;
 
 			reconstruced_beta_rects.push_back(Rect(cvRound(center_x), cvRound(center_y),
 				cvRound(scale_x), cvRound(scale_y)));
@@ -467,21 +466,44 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 		Rect alpha_reconstructed(cvRound(center_x), cvRound(center_y),
 			cvRound(scale_x), cvRound(scale_y));
+
+		int visited_alpha_index = -1;
+		int visited_alpha_max_score = 0;
+		for (size_t j = 0; j < alpha_rects.size(); j++) {
+			if (!visited_alpha_rects[j] && RectOverlap(alpha_reconstructed, alpha_rects[j])) {
+				if (visited_alpha_max_score < alpha_scores[j]) {
+					visited_alpha_index = j;
+					visited_alpha_max_score = alpha_scores[j];
+				}
+			}
+		}
+
+		if (visited_alpha_index >= 0) {
+			visited_alpha_rects[visited_alpha_index] = 1;
+			alpha_reconstructed = alpha_rects[visited_alpha_index];
+		}
 		//reconstruced_beta_rects.push_back();
 		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
 		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
 		//imshow("t_frame", t_frame);
 		//waitKey(0);
 
-		bool has_beta = 0;
+		int visited_beta_index = -1;
+		int visited_beta_max_score = 0;
 		for (size_t k = 0; k < beta_rects.size(); ++k) {
 			if (RectInside(alpha_reconstructed, beta_rects[k]) && !visited_beta_rects[k]) { // || 
-				visited_beta_rects[k] = true;
-				//std::cout << "beta activated: " << k << std::endl;
-				reconstruced_beta_rects.push_back(beta_rects[k]);
-				reconstruced_gamma_rects.push_back(gamma_rects[i]);
-				reconstruced_alpha_rects.push_back(alpha_reconstructed);
+				if (visited_beta_max_score < beta_scores[k]) {
+					visited_beta_index = k;
+					visited_beta_max_score = beta_scores[k];
+				}
 			}
+		}
+
+		if (visited_beta_index >= 0) {
+			visited_beta_rects[visited_beta_index] = 1;
+			reconstruced_beta_rects.push_back(beta_rects[visited_beta_index]);
+			reconstruced_gamma_rects.push_back(gamma_rects[i]);
+			reconstruced_alpha_rects.push_back(alpha_reconstructed);
 		}
 	}
 

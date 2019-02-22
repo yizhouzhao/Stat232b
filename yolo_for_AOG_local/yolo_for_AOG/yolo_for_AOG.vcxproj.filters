@@ -27,6 +27,9 @@
     <ClInclude Include="random_generator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="circle_detection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
