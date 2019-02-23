@@ -47,5 +47,8 @@
     <ClCompile Include="random_generator.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="circle_detection.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

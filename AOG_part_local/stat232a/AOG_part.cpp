@@ -351,19 +351,21 @@ int main()
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\saog.jpg", frame2);
 	//waitKey(0);
 
-	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_2.txt");
-	//std::cout << rect_list[0][0].x;
+	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_31.txt");
+	////std::cout << rect_list[0][0].x;
 
 	AOG<std::string, std::vector<double>> learn_aog = 
 		LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
 
-	Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
-	//imshow("image3", frame3);
-	//waitKey(0);
+	//Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
+	////imshow("image3", frame3);
+	////waitKey(0);
 
-	std::cout << NormalDensity1D(0, 0, 1) << std::endl;
+	//std::cout << NormalDensity1D(0, 0, 1) << std::endl;
 
 	std::cout << "Hello World!\n";
+
+	std::cout << "overlap" <<" " << RectOverlap(Rect(90, 90, 20, 20), Rect(0, 0, 100, 100)) << std::endl;
 
 	return 0;
 }

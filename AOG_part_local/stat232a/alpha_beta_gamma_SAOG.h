@@ -30,13 +30,11 @@ AOG<std::string, std::vector<double>> AlphaBetaGammaSAOG(std::string alpha_name,
 	Symbolic_State<std::string> alpha(alpha_name, false);
 	std::vector<double> alpha_attr = { alpha_weight, gamma_weight, beta_weight};
 
-
 	std::vector<Symbolic_State<std::string>> beta;
 	for (unsigned int i = 0; i < beta_names.size(); ++i) {
 		Symbolic_State<std::string> beta_i(beta_names[i], true);
 		beta.push_back(beta_i);
 	}
-
 
 	std::vector<Symbolic_State<std::string>> top = { alpha };
 	Symbolic_Rule<std::string> gamma2alpha(gamma, top);
@@ -81,7 +79,6 @@ Mat PlotAlphaBetaGammaSAOG(AOG<std::string, std::vector<double>>& aog) {
 	putText(dst, std::to_string(alpha_attr[2]).substr(0, 4), Point(140, 210),
 		FONT_HERSHEY_SIMPLEX, 0.45, Scalar(200, 50, 55), 2, cv::LINE_8);
 
-
 	return dst;
 }
 
@@ -107,6 +104,21 @@ bool RectOverlap(Rect rect1, Rect rect2) {
 		return false;
 
 	return true;
+}
+
+double RectOverlapArea(Rect rect1, Rect rect2) {
+	Point l1(rect1.x, rect1.y);
+	Point r1(rect1.x + rect1.width, rect1.y + rect1.height);
+
+	Point l2(rect2.x, rect2.y);
+	Point r2(rect2.x + rect2.width, rect2.y + rect2.height);
+
+	int areaI = (min(r1.x, r2.x) -
+		max(l1.x, l2.x)) *
+		(min(r1.y, r2.y) -
+			max(l1.y, l2.y));
+
+	return (areaI + .0) / min(rect1.area(), rect2.area());
 }
 
 //determine a rect is inside another
@@ -219,41 +231,41 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 }
 
 AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
-	//treshold
-	const double alpha_threshold = 0.15;
-	const double beta_threshold = 0.5;
-	const double gamma_threshold = 0.5;
+	//treshold for activate channel
+	const double alpha_threshold = 0.2;
+	const double beta_threshold = 0.2;
+	const double gamma_threshold = 0.2;
 	
+	//learn the position and scale information from gamma to alpha channel
 	std::vector<double> g2a_info = LearnMeanAndVariance(gamma_rects, alpha_rects);
-
 	double gamma_to_alpha = g2a_info[1] / gamma_rects.size(); //????????????????????????????????????
-	std::cout << "\n gamma_overlap_alpha_count " << gamma_to_alpha << std::endl;
+	//std::cout << "\n gamma_overlap_alpha_count " << gamma_to_alpha << std::endl;
 
-	std::cout << "gamma:: position " << g2a_info[2] << " " << g2a_info[3] << " " << g2a_info[4] << " " << g2a_info[5] << std::endl;
-	std::cout << "gamma:: scale " << g2a_info[6] << " " << g2a_info[7] << " " << g2a_info[8] << " " << g2a_info[9] << std::endl;
+	//std::cout << "gamma:: position " << g2a_info[2] << " " << g2a_info[3] << " " << g2a_info[4] << " " << g2a_info[5] << std::endl;
+	//std::cout << "gamma:: scale " << g2a_info[6] << " " << g2a_info[7] << " " << g2a_info[8] << " " << g2a_info[9] << std::endl;
 
+	//learn the position and scale information from alpha to beta channel
 	std::vector<double> a2b_info = LearnMeanAndVariance(alpha_rects, beta_rects);
-
-	std::cout << "\n beta_overlap_alpha_count " << a2b_info[0] << std::endl;
+	//std::cout << "\n beta_overlap_alpha_count " << a2b_info[0] << std::endl;
 	double alpha_to_beta = a2b_info[1] / alpha_rects.size(); //????????????????????????????????????
-	std::cout << "\n beta_overlap_alpha_count " << alpha_to_beta << std::endl;
+	//std::cout << "\n beta_overlap_alpha_count " << alpha_to_beta << std::endl;
+	//std::cout << "beta:: position " << a2b_info[2] << " " << a2b_info[3] << " " << a2b_info[4] << " " << a2b_info[5] << std::endl;
+	//std::cout << "beta:: scale " << a2b_info[6] << " " << a2b_info[7] << " " << a2b_info[8] << " " << a2b_info[9] << std::endl;
 
-	std::cout << "beta:: position " << a2b_info[2] << " " << a2b_info[3] << " " << a2b_info[4] << " " << a2b_info[5] << std::endl;
-	std::cout << "beta:: scale " << a2b_info[6] << " " << a2b_info[7] << " " << a2b_info[8] << " " << a2b_info[9] << std::endl;
-
+	//learn the position and scale information from gamma to beta channel
 	std::vector<double> g2b_info = LearnMeanAndVariance(gamma_rects, beta_rects);
-
-	
-	double gamma_to_beta = g2b_info[1] / gamma_rects.size(); //????????????????????????????????????
-	std::cout << "\n beta_overlap_gamma_count " << gamma_to_beta << std::endl;
-
-	std::cout << "gamma->beta:: position " << g2b_info[2] << " " << g2b_info[3] << " " << g2b_info[4] << " " << g2b_info[5] << std::endl;
-	std::cout << "gamma->beta:: scale " << g2b_info[6] << " " << g2b_info[7] << " " << g2b_info[8] << " " << g2b_info[9] << std::endl;
+	double gamma_to_beta = gamma_to_alpha * alpha_to_beta; //g2b_info[1] / gamma_rects.size(); //????????????????????????????????????
+	//std::cout << "\n beta_overlap_gamma_count " << gamma_to_beta << std::endl;
+	//std::cout << "gamma->beta:: position " << g2b_info[2] << " " << g2b_info[3] << " " << g2b_info[4] << " " << g2b_info[5] << std::endl;
+	//std::cout << "gamma->beta:: scale " << g2b_info[6] << " " << g2b_info[7] << " " << g2b_info[8] << " " << g2b_info[9] << std::endl;
 
 
 	std::vector<double> alpha_scores(alpha_rects.size(), 0);
 	std::vector<double> beta_scores(beta_rects.size(), 0);
 	std::vector<double> gamma_scores(gamma_rects.size(), 0);
+	std::map<std::pair<int, int>, double> gamma2alpha_score_record;
+	std::map<std::pair<int, int>, double> gamma2beta_score_record;
+	std::map<std::pair<int, int>, double> alpha2beta_score_record;
 
 	std::vector<std::vector<Rect>> group_objects;
 	std::vector<double> group_scores;
@@ -269,7 +281,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 	for (size_t i = 0; i < gamma_rects.size(); ++i) {
 		for (size_t j = 0; j < alpha_rects.size(); ++j) {
-			if (RectInside(gamma_rects[i], alpha_rects[j])) {
+			if (RectOverlapArea(gamma_rects[i], alpha_rects[j]) > 0.9 && RectOverlap(gamma_rects[i], alpha_rects[j])) {
 				double center_x = (alpha_rects[j].x - gamma_rects[i].x + .0) / gamma_rects[i].width;
 				double center_y = (alpha_rects[j].y - gamma_rects[i].y + .0) / gamma_rects[i].height;
 				double scale_x = (alpha_rects[j].width + .0) / gamma_rects[i].width;
@@ -281,11 +293,17 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 					NormalDensity1D(scale_y, g2a_info[7], g2a_info[9]);
 
 				add_score /= g2a_scale;
-
-				//std::cout << "add score: " << i << " " << j << " " << " " << add_score << std::endl;
+				gamma2alpha_score_record[{i, j}] = add_score;
+				std::cout << gamma2alpha_score_record[{i, j}]  << "!!!!!!!add score: " << i << " " << j << " " << " " << add_score << std::endl;
 				gamma_scores[i] += add_score * gamma_to_alpha;
 				alpha_scores[j] += add_score * gamma_to_alpha;
 			}
+		}
+	}
+
+	for (auto i = 0; i < gamma_rects.size(); i++) {
+		for (size_t j = 0; j < alpha_rects.size(); ++j) {
+			std::cout << i << " " << j << " "<< gamma2alpha_score_record[{i, j}] << std::endl;
 		}
 	}
 
@@ -303,6 +321,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 					NormalDensity1D(scale_y, a2b_info[7], a2b_info[9]);
 
 				add_score /= a2b_scale;
+				alpha2beta_score_record[{j, k}] = add_score;
 				//std::cout << "add score: j k " << j  << " " << k << " " << " " << add_score << std::endl;
 				beta_scores[k] += add_score  * alpha_to_beta;
 				alpha_scores[j] += add_score  * alpha_to_beta;
@@ -324,6 +343,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 					NormalDensity1D(scale_y, g2b_info[7], g2b_info[9]);
 
 				add_score /= g2b_scale;
+				gamma2beta_score_record[{i, k}] = add_score;
 				//std::cout << "add score: i, k " << i << " " << k << " " << " " << add_score << std::endl;
 				beta_scores[k] += add_score * gamma_to_beta;
 				gamma_scores[i] += add_score * gamma_to_beta;
@@ -342,14 +362,14 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 	for (int j = 0; j < alpha_rects.size(); j++) {
 		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
-		//if (alpha_scores[j] < alpha_threshold) continue;
+		if (alpha_scores[j] < alpha_threshold) continue;
 		Scalar color(20, 180, 100);
 		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
 	}
 
 	for (int k = 0; k < beta_rects.size(); k++) {
 		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
-		//if (beta_scores[k] < beta_threshold) continue;
+		if (beta_scores[k] < beta_threshold) continue;
 		Scalar color(100, 20, 180);
 		rectangle(frame, beta_rects[k], color, 4, 8, 0);
 	}
@@ -358,7 +378,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	imshow("frame", frame);
 	waitKey(0);
 
-	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
+	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
 
 	std::vector<Rect> reconstruced_gamma_rects;
 	std::vector<Rect> reconstruced_alpha_rects;
@@ -368,27 +388,32 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	std::vector<bool> visited_beta_rects(beta_rects.size(), false);
 	std::vector<bool> visited_gamma_rects(gamma_rects.size(), false);
 
-	//Reconstruct BETA_GAMMA from ALPHA
-	for (int j = 0; j < alpha_rects.size(); j++) {
+	//Reconstruct BETA & GAMMA from ALPHA
+	for (size_t j = 0; j < alpha_rects.size(); j++) {
 		if (alpha_scores[j] < alpha_threshold)
 			continue;
 
 		visited_alpha_rects[j] = true;
 
 		int visited_gamma_index = -1;
-		int visited_gamma_max_score = 0;
+		double visited_gamma_max_score = 0;
 
-		for (int i = 0; i < gamma_rects.size(); ++i) {
-			if (RectInside(gamma_rects[i], alpha_rects[j]) && !visited_gamma_rects[i]) {
-				if (visited_gamma_max_score < gamma_scores[i]) {
-					visited_gamma_max_score = gamma_scores[i];
+		for (size_t i = 0; i < gamma_rects.size(); ++i) {
+			if ((RectOverlapArea(gamma_rects[i], alpha_rects[j]) > 0.9 && RectOverlap(gamma_rects[i], alpha_rects[j])) && (!visited_gamma_rects[i])) {
+				if (visited_gamma_max_score < gamma2alpha_score_record[{i, j}]) {
+					/*std::cout << "overlap or inside: " << i << " " << j << " " << "\n"
+						<<
+						RectOverlapArea(gamma_rects[i], alpha_rects[j]) << " " << RectInside(gamma_rects[i], alpha_rects[j]) << std::endl;*/
+					//std::cout <<"scores: " <<gamma2alpha_score_record[{i, j}] << " vs " << gamma_scores[i] << " \n";
+					visited_gamma_max_score = gamma2alpha_score_record[{i, j}]; //gamma_scores[i]; //gamma2alpha_score_record[{i, j}];
 					visited_gamma_index = i;
 				}
 			}
 		}
-		
+		//std::cout << "chosed: " << visited_gamma_index << " " << j << " " << visited_gamma_max_score << "\n";
+
 		int visited_beta_index = -1;
-		int visited_beta_max_score = 0;
+		double visited_beta_max_score = 0;
 
 		for (int k = 0; k < beta_rects.size(); ++k) {
 			if (RectInside(beta_rects[k], alpha_rects[j]) && !visited_beta_rects[k]) {
@@ -451,12 +476,12 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 		if (gamma_scores[i] < gamma_threshold || visited_gamma_rects[i])
 			continue;
 
-		//std::cout << "gamma activated: " << i << std::endl;
+		std::cout << "gamma activated: " << i << " " << gamma_scores[i] << std::endl;
 
-		//Mat t_frame = Mat::zeros(3024, 4032, CV_8UC3);
-		//t_frame = cv::Scalar(255, 255, 255);
+		Mat t_frame = Mat::zeros(3024, 4032, CV_8UC3);
+		t_frame = cv::Scalar(255, 255, 255);
 
-		//rectangle(t_frame, gamma_rects[i], Scalar(0, 0, 0), 5, 8, 0);
+		rectangle(t_frame, gamma_rects[i], Scalar(0, 0, 0), 5, 8, 0);
 
 		visited_gamma_rects[i] = true;
 		double scale_x = gamma_rects[i].width * g2a_info[6];
@@ -468,7 +493,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 			cvRound(scale_x), cvRound(scale_y));
 
 		int visited_alpha_index = -1;
-		int visited_alpha_max_score = 0;
+		double visited_alpha_max_score = 0;
 		for (size_t j = 0; j < alpha_rects.size(); j++) {
 			if (!visited_alpha_rects[j] && RectOverlap(alpha_reconstructed, alpha_rects[j])) {
 				if (visited_alpha_max_score < alpha_scores[j]) {
@@ -482,14 +507,16 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 			visited_alpha_rects[visited_alpha_index] = 1;
 			alpha_reconstructed = alpha_rects[visited_alpha_index];
 		}
-		//reconstruced_beta_rects.push_back();
-		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
-		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
-		//imshow("t_frame", t_frame);
-		//waitKey(0);
+
+		rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
+		cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
+		imshow("t_frame", t_frame);
+		waitKey(0);
+
+
 
 		int visited_beta_index = -1;
-		int visited_beta_max_score = 0;
+		double visited_beta_max_score = 0;
 		for (size_t k = 0; k < beta_rects.size(); ++k) {
 			if (RectInside(alpha_reconstructed, beta_rects[k]) && !visited_beta_rects[k]) { // || 
 				if (visited_beta_max_score < beta_scores[k]) {
@@ -528,7 +555,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
 	imshow("frame2", frame2);
 	waitKey(0);
-	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_reconstrued.jpg", frame2);
+	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_reconstrued.jpg", frame2);
 
 	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);
 	return aog;

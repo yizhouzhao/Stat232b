@@ -9,23 +9,27 @@ using namespace dnn;
 #include "yolo_detection.h"
 #include "haar_detection.h"
 #include "random_generator.h"
+#include "circle_detection.h"
 
 int main()
 {
     std::cout << "Hello World!\n"; 
-	vector<string> names_list = getNamesOfClasses("data\\coco.names");
+	//vector<string> names_list = getNamesOfClasses("data\\coco.names");
 	//std::cout << names_list[10] << std::endl;
 	
-	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\2.jpeg";
-	predictImageYolov3(filename, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
+	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\car3.jpg"; //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg";
+	predictImageYolov3(filename,""); //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
 
-	predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
+	//predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
+	//predictImageHaarCascade(filename, "head and shouler");
 
 	//Mat frame = Mat::zeros(600, 800, CV_8UC3);
 	//generateRectanglesOnFrame(frame, "test.txt", 10);
 	//imshow("pic", frame);
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\demo.jpg", frame);
 	//waitKey(0);
+
+	//predictCircle("C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\cat1.jpg");
 
 	return 0; 
 }

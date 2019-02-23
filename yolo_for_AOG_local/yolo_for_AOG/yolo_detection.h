@@ -14,7 +14,7 @@ using namespace dnn;
 using namespace std;
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& out, vector<string>& classes, bool draw_person_only = true, string writefile = "");
+void postprocess(Mat& frame, const vector<Mat>& out, vector<string>& classes, string class_name, string writefile = "");
 
 // Draw the predicted bounding box
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame, vector<string>& classes);
@@ -22,7 +22,7 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 // Get the names of the output layers
 vector<String> getOutputsNames(const Net& net);
 
-void predictImageYolov3(string filename, string writefile = "");
+void predictImageYolov3(string filename, string class_name, string writefile = "");
 
 vector<string> getNamesOfClasses(const string& classesFile);
 
