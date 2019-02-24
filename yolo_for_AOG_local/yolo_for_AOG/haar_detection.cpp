@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "haar_detection.h"
+#include <algorithm>
 
 /** Global variables */
 //String face_cascade_name = "haarcascade_frontalface_alt.xml";
@@ -174,7 +175,7 @@ RNG rng(12345);
 //}
 
 
-void predictImageHaarCascade(const string& filename, string class_name, string writefile) {
+void predictImageHaarCascade(const string& filename, string class_name, string writefile, string channel) {
 	// PreDefined trained XML classifiers with facial features 
 	CascadeClassifier cascade;
 	double scale = 1;
@@ -270,6 +271,26 @@ void predictImageHaarCascade(const string& filename, string class_name, string w
 	cascade.detectMultiScale(gray, objects, 1.1,
 		2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30));
 
+
+	//std::vector<int> rejectLevels;
+	//std::vector<double> levelWeights;
+	//cascade.detectMultiScale(gray, objects, rejectLevels, levelWeights, 1.1,
+	//	2, 0 | CASCADE_SCALE_IMAGE, Size(30, 30),Size(), true);
+
+	//if nothing found
+	if (objects.size() == 0) {
+		std::cout << "No object: " << class_name << " found!" << std::endl;
+		return;
+	}
+
+	//normalize weights into range [0,1]
+	//double weights_min = *std::min_element(levelWeights.begin(), levelWeights.end());
+	//double weights_range = *std::max_element(levelWeights.begin(), levelWeights.end()) - weights_min + 1e-6;
+	//for (int i = 0; i < levelWeights.size(); ++i) {
+	//	levelWeights[i] = (levelWeights[i] - weights_min) / weights_range;
+	//	std::cout << "levelWeights: " << i << " " << levelWeights[i] << std::endl;
+	//}
+
 		// Initialize the parameters
 	float confThreshold = 0.5f; // Confidence threshold
 	float nmsThreshold = 0.15f;  // Non-maximum suppression threshold
@@ -277,6 +298,7 @@ void predictImageHaarCascade(const string& filename, string class_name, string w
 	std::vector<float> confidences(objects.size(), 1.0f);
 	NMSBoxes(objects, confidences, confThreshold, nmsThreshold, indices);
 
+	class_name.erase(remove(class_name.begin(), class_name.end(), ' '), class_name.end());
 
 	for (size_t i = 0; i < indices.size(); i++)
 		{
@@ -284,7 +306,8 @@ void predictImageHaarCascade(const string& filename, string class_name, string w
 				
 			ofstream file(writefile, std::ios_base::app);
 			if (file.is_open()) {
-				file << "alpha face " << r.x << " " << r.y << " " << r.x + r.width << " " << r.y + r.height << "\n";
+				file << channel << " " << class_name << " " << confidences[i] << " " << 
+					r.x << " " << r.y << " " << r.x + r.width << " " << r.y + r.height << "\n";
 				file.close();
 			}
 		

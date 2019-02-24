@@ -37,7 +37,7 @@ vector<String> getOutputsNames(const Net& net)
 }
 
 // Remove the bounding boxes with low confidence using non-maxima suppression
-void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes, string class_name, string writefile)
+void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes, string class_name, string writefile, string channel)
 {
 	vector<int> classIds;
 	vector<float> confidences;
@@ -89,7 +89,7 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes, s
 		Rect box = boxes[idx];
 		ofstream file(writefile, std::ios_base::app);
 		if (file.is_open()) {
-			file << "gamma body " << box.x << " " << box.y << " " << box.x + box.width << " " << box.y + box.height << "\n";
+			file << channel << " "<< class_name << " " << box.x << " " << box.y << " " << box.x + box.width << " " << box.y + box.height << "\n";
 			file.close();
 		}
 		drawPred(classIds[idx], confidences[idx], box.x, box.y,
@@ -122,7 +122,7 @@ void drawPred(int classId, float conf, int left, int top, int right, int bottom,
 
 
 //Yolov3
-void predictImageYolov3(string filename, string class_name, string writefile) {
+void predictImageYolov3(string filename, string class_name, string writefile, string channel) {
 	// Give the configuration and weight files for the model
 	string modelConfiguration = "data\\yolov3.cfg";
 	string modelWeights = "data\\yolov3.weights";
@@ -154,7 +154,7 @@ void predictImageYolov3(string filename, string class_name, string writefile) {
 	net.forward(outs, getOutputsNames(net));
 
 	// Remove the bounding boxes with low confidence
-	postprocess(frame, outs, classes, class_name , writefile);
+	postprocess(frame, outs, classes, class_name , writefile, channel);
 
 	// Write the frame with the detection boxes
 	Mat detectedFrame;

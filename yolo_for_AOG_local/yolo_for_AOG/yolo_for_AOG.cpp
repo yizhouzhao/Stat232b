@@ -17,11 +17,13 @@ int main()
 	//vector<string> names_list = getNamesOfClasses("data\\coco.names");
 	//std::cout << names_list[10] << std::endl;
 	
-	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\car3.jpg"; //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg";
-	predictImageYolov3(filename,""); //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
+	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg"; //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg";
+	//predictImageYolov3(filename,"person", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_11.txt"); //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
 
 	//predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
-	//predictImageHaarCascade(filename, "head and shouler");
+	predictImageHaarCascade(filename, "head and shouler", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_11.txt", "gamma");
+	predictImageHaarCascade(filename, "face", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_11.txt", "alpha");
+	predictImageHaarCascade(filename, "eye", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_11.txt", "beta");
 
 	//Mat frame = Mat::zeros(600, 800, CV_8UC3);
 	//generateRectanglesOnFrame(frame, "test.txt", 10);

@@ -21,7 +21,6 @@ using namespace AOG_LIB;
 AOG<std::string, std::vector<double>> AlphaBetaGammaSAOG(std::string alpha_name, double alpha_weight,
 	std::vector<std::string> beta_names, double beta_weight,
 	std::string gamma_name, double gamma_weight){
-	
 	//initialize rules
 	std::vector<Symbolic_Rule<std::string>> rules;
 
@@ -51,9 +50,6 @@ AOG<std::string, std::vector<double>> AlphaBetaGammaSAOG(std::string alpha_name,
 	return aog;
 }
 
-
-
-
 //Plot alpha_beta_gamma_saog
 Mat PlotAlphaBetaGammaSAOG(AOG<std::string, std::vector<double>>& aog) {
 	Mat frame = PlotAOG(aog);
@@ -68,7 +64,6 @@ Mat PlotAlphaBetaGammaSAOG(AOG<std::string, std::vector<double>>& aog) {
 	Mat dst = frame;
 	copyMakeBorder(frame, dst, 0, 50, 0, 0, 0, Scalar(255, 255, 255));
 	std::vector<double> alpha_attr = aog.GetVertexContent(1)->GetAttribute();
-
 
 	putText(dst, std::to_string(alpha_attr[0]).substr(0, 4), Point(40, 140), 
 		FONT_HERSHEY_SIMPLEX, 0.45, Scalar(200, 50, 55), 2, cv::LINE_8);
@@ -140,43 +135,43 @@ bool RectInside(Rect rect1, Rect rect2) {
 	return false;
 }
 
-std::vector<std::vector<Rect>> ReadRectFromFile(std::string filename) {
-	std::vector<std::vector<Rect>> rect_list;
-	ifstream file(filename);
-	if (file.is_open()) {
-		std::vector<Rect> alpha_rects;
-		std::vector<Rect> beta_rects;
-		std::vector<Rect> gamma_rects;
-		std::string line;
-		while (std::getline(file, line)) {
-			//random delete lines for debug
-			//if (rand() % 100 < 60)
-			//	continue;
-			std::stringstream linestream(line);
-			std::string channel;
-			std::getline(linestream, channel, ' ');
-			std::string name;
-			std::getline(linestream, name, ' ');
-			int top_x;
-			int top_y;
-			int bottom_x;
-			int bottom_y;
-			linestream >> top_x >> top_y >> bottom_x >> bottom_y;
-			//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
-			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
-			if (channel == "alpha")
-				alpha_rects.push_back(rect);
-			else if (channel == "beta")
-				beta_rects.push_back(rect);
-			else if (channel == "gamma")
-				gamma_rects.push_back(rect);
-		}
-		rect_list.emplace_back(alpha_rects);
-		rect_list.emplace_back(beta_rects);
-		rect_list.emplace_back(gamma_rects);
-	}
-	return rect_list;
-}
+//std::vector<std::vector<Rect>> ReadRectFromFile(std::string filename) {
+//	std::vector<std::vector<Rect>> rect_list;
+//	ifstream file(filename);
+//	if (file.is_open()) {
+//		std::vector<Rect> alpha_rects;
+//		std::vector<Rect> beta_rects;
+//		std::vector<Rect> gamma_rects;
+//		std::string line;
+//		while (std::getline(file, line)) {
+//			random delete lines for debug
+//			if (rand() % 100 < 60)
+//				continue;
+//			std::stringstream linestream(line);
+//			std::string channel;
+//			std::getline(linestream, channel, ' ');
+//			std::string name;
+//			std::getline(linestream, name, ' ');
+//			int top_x;
+//			int top_y;
+//			int bottom_x;
+//			int bottom_y;
+//			linestream >> top_x >> top_y >> bottom_x >> bottom_y;
+//			std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+//			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+//			if (channel == "alpha")
+//				alpha_rects.push_back(rect);
+//			else if (channel == "beta")
+//				beta_rects.push_back(rect);
+//			else if (channel == "gamma")
+//				gamma_rects.push_back(rect);
+//		}
+//		rect_list.emplace_back(alpha_rects);
+//		rect_list.emplace_back(beta_rects);
+//		rect_list.emplace_back(gamma_rects);
+//	}
+//	return rect_list;
+//}
 
 double NormalDensity1D(double x, double mean, double variance) {
 	return 1.0 / sqrt(2 * MATH_PI * variance) * exp(-0.5 * (x - mean) * (x - mean) / variance);
@@ -230,11 +225,14 @@ std::vector<double> LearnMeanAndVariance(std::vector<Rect> channel1, std::vector
 		_mean_scale_x, _mean_scale_y , _var_scale_x , _var_scale_y });
 }
 
-AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>& alpha_rects, std::vector<Rect>& beta_rects, std::vector<Rect>& gamma_rects) {
+AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::vector<Rect>& beta_rects,const std::vector<Rect>& gamma_rects,
+	const std::vector<double>& alpha_confidence = std::vector<double>(),
+	const std::vector<double> beta_confidence = std::vector<double>(), 
+	const std::vector<double>& gamma_confidence = std::vector<double>()) {
 	//treshold for activate channel
-	const double alpha_threshold = 0.2;
-	const double beta_threshold = 0.2;
-	const double gamma_threshold = 0.2;
+	const double alpha_threshold = 1.2;
+	const double beta_threshold = 1.2;
+	const double gamma_threshold = 1.2;
 	
 	//learn the position and scale information from gamma to alpha channel
 	std::vector<double> g2a_info = LearnMeanAndVariance(gamma_rects, alpha_rects);
@@ -260,9 +258,34 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	//std::cout << "gamma->beta:: scale " << g2b_info[6] << " " << g2b_info[7] << " " << g2b_info[8] << " " << g2b_info[9] << std::endl;
 
 
-	std::vector<double> alpha_scores(alpha_rects.size(), 0);
-	std::vector<double> beta_scores(beta_rects.size(), 0);
-	std::vector<double> gamma_scores(gamma_rects.size(), 0);
+	std::vector<double> alpha_scores; 
+	if (alpha_confidence.size() == 0) {
+		alpha_scores = std::vector<double>(alpha_rects.size(), 1);
+	}
+	else {
+		CV_Assert(alpha_confidence.size() == alpha_rects.size());
+		alpha_scores = alpha_confidence;
+	}
+
+	std::vector<double> beta_scores;
+	if (beta_confidence.size() == 0) {
+		beta_scores = std::vector<double>(beta_rects.size(), 1);
+	}
+	else {
+		CV_Assert(beta_confidence.size() == beta_rects.size());
+		beta_scores = beta_confidence;
+	}
+
+	std::vector<double> gamma_scores;
+	if (gamma_confidence.size() == 0) {
+		gamma_scores = std::vector<double>(gamma_rects.size(), 1);
+	}
+	else {
+		CV_Assert(gamma_confidence.size() == gamma_rects.size());
+		gamma_scores = gamma_confidence;
+	}
+
+
 	std::map<std::pair<int, int>, double> gamma2alpha_score_record;
 	std::map<std::pair<int, int>, double> gamma2beta_score_record;
 	std::map<std::pair<int, int>, double> alpha2beta_score_record;
@@ -294,18 +317,18 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 				add_score /= g2a_scale;
 				gamma2alpha_score_record[{i, j}] = add_score;
-				std::cout << gamma2alpha_score_record[{i, j}]  << "!!!!!!!add score: " << i << " " << j << " " << " " << add_score << std::endl;
+				//std::cout << gamma2alpha_score_record[{i, j}]  << "!!!!!!!add score: " << i << " " << j << " " << " " << add_score << std::endl;
 				gamma_scores[i] += add_score * gamma_to_alpha;
 				alpha_scores[j] += add_score * gamma_to_alpha;
 			}
 		}
 	}
 
-	for (auto i = 0; i < gamma_rects.size(); i++) {
-		for (size_t j = 0; j < alpha_rects.size(); ++j) {
-			std::cout << i << " " << j << " "<< gamma2alpha_score_record[{i, j}] << std::endl;
-		}
-	}
+	//for (auto i = 0; i < gamma_rects.size(); i++) {
+	//	for (size_t j = 0; j < alpha_rects.size(); ++j) {
+	//		std::cout << i << " " << j << " "<< gamma2alpha_score_record[{i, j}] << std::endl;
+	//	}
+	//}
 
 	for (size_t j = 0; j < alpha_rects.size(); ++j) {
 		for (size_t k = 0; k < beta_rects.size(); ++k) {
@@ -362,14 +385,14 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 
 	for (int j = 0; j < alpha_rects.size(); j++) {
 		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
-		if (alpha_scores[j] < alpha_threshold) continue;
+		//if (alpha_scores[j] < alpha_threshold) continue;
 		Scalar color(20, 180, 100);
 		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
 	}
 
 	for (int k = 0; k < beta_rects.size(); k++) {
 		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
-		if (beta_scores[k] < beta_threshold) continue;
+		//if (beta_scores[k] < beta_threshold) continue;
 		Scalar color(100, 20, 180);
 		rectangle(frame, beta_rects[k], color, 4, 8, 0);
 	}
@@ -378,7 +401,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	imshow("frame", frame);
 	waitKey(0);
 
-	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_filtered.jpg", frame);
+	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background.jpg", frame);
 
 	std::vector<Rect> reconstruced_gamma_rects;
 	std::vector<Rect> reconstruced_alpha_rects;
@@ -476,7 +499,7 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 		if (gamma_scores[i] < gamma_threshold || visited_gamma_rects[i])
 			continue;
 
-		std::cout << "gamma activated: " << i << " " << gamma_scores[i] << std::endl;
+		//std::cout << "gamma activated: " << i << " " << gamma_scores[i] << std::endl;
 
 		Mat t_frame = Mat::zeros(3024, 4032, CV_8UC3);
 		t_frame = cv::Scalar(255, 255, 255);
@@ -508,12 +531,10 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 			alpha_reconstructed = alpha_rects[visited_alpha_index];
 		}
 
-		rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
-		cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
-		imshow("t_frame", t_frame);
-		waitKey(0);
-
-
+		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
+		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
+		//imshow("t_frame", t_frame);
+		//waitKey(0);
 
 		int visited_beta_index = -1;
 		double visited_beta_max_score = 0;
@@ -555,12 +576,74 @@ AOG<std::string, std::vector<double>> LearnAlphaBetaGammaSAOG(std::vector<Rect>&
 	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
 	imshow("frame2", frame2);
 	waitKey(0);
-	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\independent_no_background_reconstrued.jpg", frame2);
+	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background_reconstrued.jpg", frame2);
 
 	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);
 	return aog;
 }
 
+AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std::vector<std::vector<Rect>>& multi_channels, const std::vector<std::vector<double>>& multi_confidences) {
+	return LearnAndParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2],
+		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
+}
 
+AOG<std::string, std::vector<double>> LearnAlphaBetaGammaAOGFromFile(std::string filename) {
+	std::vector<std::vector<Rect>> rect_list;
+	std::vector<std::vector<double>> confidence_list;
+	ifstream file(filename);
+	if (file.is_open()) {
+		std::vector<Rect> alpha_rects;
+		std::vector<Rect> beta_rects;
+		std::vector<Rect> gamma_rects;
+
+		std::vector<double> alpha_confidence;
+		std::vector<double> beta_confidence;
+		std::vector<double> gamma_confidence;
+
+		std::string line;
+		while (std::getline(file, line)) {
+			//random delete lines for debug
+			//if (rand() % 100 < 60)
+			//	continue;
+			std::stringstream linestream(line);
+			std::string channel;
+			std::getline(linestream, channel, ' ');
+			std::string name;
+			std::getline(linestream, name, ' ');
+			double confidence;
+			int top_x;
+			int top_y;
+			int bottom_x;
+			int bottom_y;
+			linestream >> confidence >> top_x >> top_y >> bottom_x >> bottom_y;
+			//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+			if (channel == "alpha") {
+				alpha_rects.push_back(rect);
+				alpha_confidence.push_back(confidence);
+			}
+				
+			else if (channel == "beta") {
+				beta_rects.push_back(rect);
+				beta_confidence.push_back(confidence);
+			}
+				
+			else if (channel == "gamma") {
+				gamma_rects.push_back(rect);
+				gamma_confidence.push_back(confidence);
+			}
+				
+		}
+		rect_list.emplace_back(alpha_rects);
+		rect_list.emplace_back(beta_rects);
+		rect_list.emplace_back(gamma_rects);
+
+		confidence_list.emplace_back(alpha_confidence);
+		confidence_list.emplace_back(beta_confidence);
+		confidence_list.emplace_back(gamma_confidence);
+
+	}
+	return LearnAndParseAlphaBetaGammaSAOG(rect_list, confidence_list);
+}
 
 #endif // !ALPHA_BETA_GAMMA_SAOG_H

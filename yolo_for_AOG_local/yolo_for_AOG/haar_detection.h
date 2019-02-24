@@ -19,6 +19,6 @@ using namespace cv;
 //void detectAndDisplay(Mat frame);
 //void predictImageHaar(const string& filename, bool eye_in_face = false, string writefile = "");
 
-void predictImageHaarCascade(const string& filename, string class_name, string writefile = "");
+void predictImageHaarCascade(const string& filename, string class_name, string writefile = "", string channel = "alpha");
 
 #endif // !HAAR_DETECTION_H

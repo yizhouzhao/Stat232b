@@ -351,11 +351,14 @@ int main()
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\saog.jpg", frame2);
 	//waitKey(0);
 
-	std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_31.txt");
+	//std::vector<std::vector<Rect>> rect_list = ReadRectFromFile("classroom_22.txt");
 	////std::cout << rect_list[0][0].x;
 
-	AOG<std::string, std::vector<double>> learn_aog = 
-		LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
+	//AOG<std::string, std::vector<double>> learn_aog = 
+	//	LearnAndParseAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
+
+
+	AOG<std::string, std::vector<double>> learn_aog = LearnAlphaBetaGammaAOGFromFile("classroom_11.txt");
 
 	//Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
 	////imshow("image3", frame3);
