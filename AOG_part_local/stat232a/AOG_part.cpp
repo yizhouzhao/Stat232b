@@ -358,7 +358,8 @@ int main()
 	//	LearnAndParseAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2]);
 
 
-	AOG<std::string, std::vector<double>> learn_aog = LearnAlphaBetaGammaAOGFromFile("classroom_11.txt");
+	//AOG<std::string, std::vector<double>> 
+	LearnAlphaBetaGammaAOGFromFile("classroom_11.txt");
 
 	//Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
 	////imshow("image3", frame3);
