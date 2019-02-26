@@ -724,7 +724,7 @@ AOG<std::string, std::unordered_map<std::string, double>> LearnAlphaBetaGammaSAO
 }
 
 void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::vector<Rect>& beta_rects, const std::vector<Rect>& gamma_rects, 
-	const AOG<std::string, std::unordered_map<std::string, double>>& aog,
+	const AOG<std::string, std::unordered_map<std::string, double>>& aog, std::string writefile,
 	const std::vector<double>& alpha_confidence = std::vector<double>(),
 	const std::vector<double>& beta_confidence = std::vector<double>(),
 	const std::vector<double>& gamma_confidence = std::vector<double>()) {
@@ -1057,7 +1057,27 @@ void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::ve
 	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
 	imshow("frame2", frame2);
 	waitKey(0);
+
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background_reconstrued.jpg", frame2);
+
+	ofstream file(writefile);
+	if (file.is_open()) {
+		for (size_t i = 0; i < reconstruced_gamma_rects.size(); ++i) {
+			stringstream ss;
+			file << "gamma gamma 1 " << reconstruced_gamma_rects[i].x << " " <<
+				reconstruced_gamma_rects[i].y << " "
+				<< reconstruced_gamma_rects[i].x + reconstruced_gamma_rects[i].width << " "
+				<< reconstruced_gamma_rects[i].y + reconstruced_gamma_rects[i].height << "\n";
+			file << "alpha alpha 1 " << reconstruced_alpha_rects[i].x << " " <<
+				reconstruced_alpha_rects[i].y << " "
+				<< reconstruced_alpha_rects[i].x + reconstruced_alpha_rects[i].width << " "
+				<< reconstruced_alpha_rects[i].y + reconstruced_alpha_rects[i].height << "\n";
+			file << "beta beta 1 " << reconstruced_beta_rects[i].x << " " <<
+				reconstruced_beta_rects[i].y << " "
+				<< reconstruced_beta_rects[i].x + reconstruced_beta_rects[i].width << " "
+				<< reconstruced_beta_rects[i].y + reconstruced_beta_rects[i].height << "\n";
+		}
+	}
 }
 
 
@@ -1069,7 +1089,7 @@ AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std:
 void LearnAndParseAlphaBetaGammaSAOG2(const std::vector<std::vector<Rect>>& multi_channels, const std::vector<std::vector<double>>& multi_confidences) {
 	AOG<std::string, std::unordered_map<std::string, double>> aog = LearnAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2],
 		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
-	ParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2], aog,
+	ParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2], aog, "classroom_11_reconstructed.txt",
 		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
 }
 
