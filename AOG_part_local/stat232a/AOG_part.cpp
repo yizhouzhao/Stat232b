@@ -30,6 +30,7 @@
 #include "AOG.h"
 #include "plot_aog.h"
 #include "alpha_beta_gamma_saog.h"
+#include "multichannel_alpha_beta_gamma_saog.h"
 
 using namespace std;
 using namespace AOG_LIB;
@@ -361,16 +362,21 @@ int main()
 	//AOG<std::string, std::vector<double>> 
 	//LearnAlphaBetaGammaAOGFromFile("classroom_11.txt", "classroom_11_reconstructed2.txt");
 
-	//LearnAndParseAlphaBetaGammaAOGFromFile("classroom_33.txt", "classroom_33.txt", "classroom_33_reconstructed3.txt");
+	//LearnAndParseAlphaBetaGammaAOGFromFile("classroom_32.txt", "classroom_32.txt", "classroom_32_reconstructed.txt");
 
-	LearnAndParseVideoImagesFromFolder("classroom_33.txt", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box",
-		"C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_output");
+	//LearnAndParseVideoImagesFromFolder("classroom_33.txt", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box",
+	//	"C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_output");
 
 	//Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
 	////imshow("image3", frame3);
 	////waitKey(0);
 
 	//std::cout << NormalDensity1D(0, 0, 1) << std::endl;
+
+	//car
+	//LearnAndParseAlphaBetaGammaAOGFromFile("box2.txt", "box2.txt", "box2_reconstructed.txt");
+
+	LearnAndParseAlphaBetaGammaAOGFromFile_MultiBeta("box2.txt", "box2.txt", "");
 
 	std::cout << "Hello World!\n";
 

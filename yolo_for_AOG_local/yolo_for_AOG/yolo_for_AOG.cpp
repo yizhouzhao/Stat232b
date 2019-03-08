@@ -18,13 +18,13 @@ int main()
 	//vector<string> names_list = getNamesOfClasses("data\\coco.names");
 	//std::cout << names_list[10] << std::endl;
 	
-	//string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 3.jpeg"; //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg";
+	string filename = "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\2.jpeg"; //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\Test 1.jpeg";
 	//predictImageYolov3(filename,"person", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_33.txt"); //"C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
 
 	//predictImageHaar(filename, false, "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\n_classroom_2.txt");
-	//predictImageHaarCascade(filename, "head and shouler", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_11.txt", "gamma");
-	//predictImageHaarCascade(filename, "face", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_33.txt", "alpha");
-	//predictImageHaarCascade(filename, "nose", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_33.txt", "beta");
+	predictImageHaarCascade(filename, "head and shouler", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_N2.txt", "gamma");
+	predictImageHaarCascade(filename, "face", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_N2.txt", "alpha");
+	predictImageHaarCascade(filename, "nose", "C:\\Users\\Yizhou Zhao\\Desktop\\pic\\classroom_N2.txt", "beta");
 
 	//Mat frame = Mat::zeros(600, 800, CV_8UC3);
 	//generateRectanglesOnFrame(frame, "test.txt", 10);
@@ -35,7 +35,7 @@ int main()
 	//predictCircle("C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\cat1.jpg");
 	//Video2Image("C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\2.mp4", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box\\", 5);
 
-	VideoAddBox("C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\2.mp4", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box\\", 5);
+	//VideoAddBox("C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\2.mp4", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box\\", 5);
 
 	return 0; 
 }
