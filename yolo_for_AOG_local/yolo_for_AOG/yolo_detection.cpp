@@ -89,7 +89,7 @@ void postprocess(Mat& frame, const vector<Mat>& outs, vector<string>& classes, s
 		Rect box = boxes[idx];
 		ofstream file(writefile, std::ios_base::app);
 		if (file.is_open()) {
-			file << channel << " "<< class_name << " " << box.x << " " << box.y << " " << box.x + box.width << " " << box.y + box.height << "\n";
+			file << channel << " " << class_name << " " << 1 << " " << box.x << " " << box.y << " " << box.x + box.width << " " << box.y + box.height << "\n";
 			file.close();
 		}
 		drawPred(classIds[idx], confidences[idx], box.x, box.y,

@@ -42,6 +42,9 @@
     <ClInclude Include="Core\Graph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="multichannel_alpha_beta_gamma_saog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

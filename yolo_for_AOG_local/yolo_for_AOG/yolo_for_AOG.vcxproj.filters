@@ -30,6 +30,9 @@
     <ClInclude Include="circle_detection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="video_to_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -48,6 +51,9 @@
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="circle_detection.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="video_to_image.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>

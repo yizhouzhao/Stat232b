@@ -8,6 +8,7 @@
 #include <sstream>
 #include <algorithm> 
 
+
 #include "AOG.h"
 #include "plot_aog.h"
 
@@ -137,7 +138,7 @@ bool RectInside(Rect rect1, Rect rect2) {
 
 //std::vector<std::vector<Rect>> ReadRectFromFile(std::string filename) {
 //	std::vector<std::vector<Rect>> rect_list;
-//	ifstream file(filename);
+//	std::ifstream file(filename);
 //	if (file.is_open()) {
 //		std::vector<Rect> alpha_rects;
 //		std::vector<Rect> beta_rects;
@@ -412,7 +413,7 @@ AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std:
 
 	cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
 	imshow("frame", frame);
-	waitKey(0);
+	//waitKey(5);
 
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background.jpg", frame);
 
@@ -547,7 +548,7 @@ AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std:
 		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
 		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
 		//imshow("t_frame", t_frame);
-		//waitKey(0);
+		//waitKey(5);
 
 		int visited_beta_index = -1;
 		double visited_beta_max_score = 0;
@@ -587,14 +588,13 @@ AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std:
 	}
 
 	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
-	imshow("frame2", frame2);
-	waitKey(0);
+	imshow("frame reconstructed", frame2);
+	waitKey(5);
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background_reconstrued.jpg", frame2);
 
 	AOG<std::string, std::vector<double>> aog = AlphaBetaGammaSAOG("alpha", 1, { "beta" }, alpha_to_beta, "gamma", gamma_to_alpha);
 	return aog;
 }
-
 
 std::unordered_map<std::string, double> LearnAttributes(std::vector<Rect> channel1, std::vector<Rect> channel2) {
 	double _mean_center_x = 0; //acturally the top left corner
@@ -718,7 +718,7 @@ AOG<std::string, std::unordered_map<std::string, double>> LearnAlphaBetaGammaSAO
 
 	//Mat frame = PlotAOG(aog);
 	//cv::imshow("frame", frame);
-	//cv::waitKey(0);
+	//cv::waitKey(5);
 
 	return aog;
 }
@@ -880,7 +880,7 @@ void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::ve
 
 	cv::resize(frame, frame, Size(frame.cols / 4, frame.rows / 4));
 	imshow("frame", frame);
-	waitKey(0);
+	waitKey(5);
 
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background.jpg", frame);
 
@@ -1015,7 +1015,7 @@ void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::ve
 		//rectangle(t_frame, alpha_reconstructed, Scalar(0, 0, 100), 5, 8, 0);
 		//cv::resize(t_frame, t_frame, Size(t_frame.cols / 4, t_frame.rows / 4));
 		//imshow("t_frame", t_frame);
-		//waitKey(0);
+		//waitKey(5);
 
 		int visited_beta_index = -1;
 		double visited_beta_max_score = 0;
@@ -1056,11 +1056,11 @@ void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::ve
 
 	cv::resize(frame2, frame2, Size(frame2.cols / 4, frame2.rows / 4));
 	imshow("frame2", frame2);
-	waitKey(0);
+	waitKey(5);
 
 	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test1_independent_no_background_reconstrued.jpg", frame2);
 
-	ofstream file(writefile);
+	std::ofstream file(writefile);
 	if (file.is_open()) {
 		for (size_t i = 0; i < reconstruced_gamma_rects.size(); ++i) {
 			stringstream ss;
@@ -1080,25 +1080,23 @@ void ParseAlphaBetaGammaSAOG(const std::vector<Rect>& alpha_rects, const std::ve
 	}
 }
 
-
-
 AOG<std::string, std::vector<double>> LearnAndParseAlphaBetaGammaSAOG(const std::vector<std::vector<Rect>>& multi_channels, const std::vector<std::vector<double>>& multi_confidences) {
 	return LearnAndParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2],
 		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
 }
-void LearnAndParseAlphaBetaGammaSAOG2(const std::vector<std::vector<Rect>>& multi_channels, const std::vector<std::vector<double>>& multi_confidences) {
+void LearnAndParseAlphaBetaGammaSAOG2(const std::vector<std::vector<Rect>>& multi_channels, const std::vector<std::vector<double>>& multi_confidences, std::string writefile) {
 	AOG<std::string, std::unordered_map<std::string, double>> aog = LearnAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2],
 		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
-	ParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2], aog, "classroom_11_reconstructed.txt",
+	ParseAlphaBetaGammaSAOG(multi_channels[0], multi_channels[1], multi_channels[2], aog, writefile,
 		multi_confidences[0], multi_confidences[1], multi_confidences[2]);
 }
 
 //std::vector<double>
 //std::unordered_map<std::string, double>
-void LearnAlphaBetaGammaAOGFromFile(std::string filename) {
+void LearnAlphaBetaGammaAOGFromFile(std::string filename, std::string writefile) {
 	std::vector<std::vector<Rect>> rect_list;
 	std::vector<std::vector<double>> confidence_list;
-	ifstream file(filename);
+	std::ifstream file(filename);
 	if (file.is_open()) {
 		std::vector<Rect> alpha_rects;
 		std::vector<Rect> beta_rects;
@@ -1152,7 +1150,269 @@ void LearnAlphaBetaGammaAOGFromFile(std::string filename) {
 
 	}
 	//AOG<std::string, std::vector<double>> aog_1 = LearnAndParseAlphaBetaGammaSAOG(rect_list, confidence_list);
-	LearnAndParseAlphaBetaGammaSAOG2(rect_list, confidence_list);
+	LearnAndParseAlphaBetaGammaSAOG2(rect_list, confidence_list, writefile);
 }
 
+void LearnAndParseAlphaBetaGammaAOGFromFile(std::string input_file, std::string target_file, std::string write_file) {
+	std::vector<std::vector<Rect>> rect_list;
+	std::vector<std::vector<double>> confidence_list;
+	std::ifstream file(input_file);
+	if (file.is_open()) {
+		std::vector<Rect> alpha_rects;
+		std::vector<Rect> beta_rects;
+		std::vector<Rect> gamma_rects;
+
+		std::vector<double> alpha_confidence;
+		std::vector<double> beta_confidence;
+		std::vector<double> gamma_confidence;
+
+		std::string line;
+		while (std::getline(file, line)) {
+			//random delete lines for debug
+			//if (rand() % 100 < 60)
+			//	continue;
+			std::stringstream linestream(line);
+			std::string channel;
+			std::getline(linestream, channel, ' ');
+			std::string name;
+			std::getline(linestream, name, ' ');
+			double confidence;
+			int top_x;
+			int top_y;
+			int bottom_x;
+			int bottom_y;
+			linestream >> confidence >> top_x >> top_y >> bottom_x >> bottom_y;
+			//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+			if (channel == "alpha") {
+				alpha_rects.push_back(rect);
+				alpha_confidence.push_back(confidence);
+			}
+
+			else if (channel == "beta") {
+				beta_rects.push_back(rect);
+				beta_confidence.push_back(confidence);
+			}
+
+			else if (channel == "gamma") {
+				gamma_rects.push_back(rect);
+				gamma_confidence.push_back(confidence);
+			}
+
+		}
+		rect_list.emplace_back(alpha_rects);
+		rect_list.emplace_back(beta_rects);
+		rect_list.emplace_back(gamma_rects);
+
+		confidence_list.emplace_back(alpha_confidence);
+		confidence_list.emplace_back(beta_confidence);
+		confidence_list.emplace_back(gamma_confidence);
+
+	}
+
+	AOG<std::string, std::unordered_map<std::string, double>> aog = LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2],
+		confidence_list[0], confidence_list[1], confidence_list[2]);
+
+	std::vector<std::vector<Rect>> out_rect_list;
+	std::vector<std::vector<double>> out_confidence_list;
+	std::ifstream outfile(target_file);
+	if (outfile.is_open()) {
+		std::vector<Rect> alpha_rects;
+		std::vector<Rect> beta_rects;
+		std::vector<Rect> gamma_rects;
+
+		std::vector<double> alpha_confidence;
+		std::vector<double> beta_confidence;
+		std::vector<double> gamma_confidence;
+
+		std::string line;
+		while (std::getline(outfile, line)) {
+			//random delete lines for debug
+			//if (rand() % 100 < 60)
+			//	continue;
+			std::stringstream linestream(line);
+			std::string channel;
+			std::getline(linestream, channel, ' ');
+			std::string name;
+			std::getline(linestream, name, ' ');
+			double confidence;
+			int top_x;
+			int top_y;
+			int bottom_x;
+			int bottom_y;
+			linestream >> confidence >> top_x >> top_y >> bottom_x >> bottom_y;
+			//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+			if (channel == "alpha") {
+				alpha_rects.push_back(rect);
+				alpha_confidence.push_back(confidence);
+			}
+
+			else if (channel == "beta") {
+				beta_rects.push_back(rect);
+				beta_confidence.push_back(confidence);
+			}
+
+			else if (channel == "gamma") {
+				gamma_rects.push_back(rect);
+				gamma_confidence.push_back(confidence);
+			}
+
+		}
+		out_rect_list.emplace_back(alpha_rects);
+		out_rect_list.emplace_back(beta_rects);
+		out_rect_list.emplace_back(gamma_rects);
+
+		out_confidence_list.emplace_back(alpha_confidence);
+		out_confidence_list.emplace_back(beta_confidence);
+		out_confidence_list.emplace_back(gamma_confidence);
+
+	}
+	
+	ParseAlphaBetaGammaSAOG(out_rect_list[0], out_rect_list[1], out_rect_list[2], aog, write_file,
+		out_confidence_list[0], out_confidence_list[1], out_confidence_list[2]);
+}
+
+#include <boost/filesystem.hpp>
+
+void LearnAndParseVideoImagesFromFolder(std::string input_file, std::string target_folder, std::string write_folder) {
+	std::vector<std::vector<Rect>> rect_list;
+	std::vector<std::vector<double>> confidence_list;
+	std::ifstream file(input_file);
+	if (file.is_open()) {
+		std::vector<Rect> alpha_rects;
+		std::vector<Rect> beta_rects;
+		std::vector<Rect> gamma_rects;
+
+		std::vector<double> alpha_confidence;
+		std::vector<double> beta_confidence;
+		std::vector<double> gamma_confidence;
+
+		std::string line;
+		while (std::getline(file, line)) {
+			//random delete lines for debug
+			//if (rand() % 100 < 60)
+			//	continue;
+			std::stringstream linestream(line);
+			std::string channel;
+			std::getline(linestream, channel, ' ');
+			std::string name;
+			std::getline(linestream, name, ' ');
+			double confidence;
+			int top_x;
+			int top_y;
+			int bottom_x;
+			int bottom_y;
+			linestream >> confidence >> top_x >> top_y >> bottom_x >> bottom_y;
+			//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+			Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+			if (channel == "alpha") {
+				alpha_rects.push_back(rect);
+				alpha_confidence.push_back(confidence);
+			}
+
+			else if (channel == "beta") {
+				beta_rects.push_back(rect);
+				beta_confidence.push_back(confidence);
+			}
+
+			else if (channel == "gamma") {
+				gamma_rects.push_back(rect);
+				gamma_confidence.push_back(confidence);
+			}
+
+		}
+		rect_list.emplace_back(alpha_rects);
+		rect_list.emplace_back(beta_rects);
+		rect_list.emplace_back(gamma_rects);
+
+		confidence_list.emplace_back(alpha_confidence);
+		confidence_list.emplace_back(beta_confidence);
+		confidence_list.emplace_back(gamma_confidence);
+
+	}
+
+	AOG<std::string, std::unordered_map<std::string, double>> aog = LearnAlphaBetaGammaSAOG(rect_list[0], rect_list[1], rect_list[2],
+		confidence_list[0], confidence_list[1], confidence_list[2]);
+
+	std::vector<std::string> parseList;	
+	std::vector<std::string> writeList;
+	using namespace boost::filesystem;
+	for (directory_iterator itr(target_folder); itr != directory_iterator(); ++itr)
+	{
+		stringstream ss;
+		ss << itr->path().filename();
+		cout << itr->path().filename() << ' '; // display filename only
+		if (is_regular_file(itr->status())) cout << " [" << file_size(itr->path()) << ']';
+		cout << '\n';
+
+		std::string filename = ss.str();
+		filename = filename.substr(1, filename.size() - 2);
+		parseList.push_back(target_folder + "\\" + filename);
+		writeList.push_back(write_folder + "\\" + filename);
+	}
+
+	for (size_t i = 0; i < parseList.size(); ++i) {
+		std::vector<std::vector<Rect>> out_rect_list;
+		std::vector<std::vector<double>> out_confidence_list;
+		std::ifstream outfile(parseList[i]);
+		if (outfile.is_open()) {
+			std::vector<Rect> alpha_rects;
+			std::vector<Rect> beta_rects;
+			std::vector<Rect> gamma_rects;
+
+			std::vector<double> alpha_confidence;
+			std::vector<double> beta_confidence;
+			std::vector<double> gamma_confidence;
+
+			std::string line;
+			while (std::getline(outfile, line)) {
+				//random delete lines for debug
+				//if (rand() % 100 < 60)
+				//	continue;
+				std::stringstream linestream(line);
+				std::string channel;
+				std::getline(linestream, channel, ' ');
+				std::string name;
+				std::getline(linestream, name, ' ');
+				double confidence;
+				int top_x;
+				int top_y;
+				int bottom_x;
+				int bottom_y;
+				linestream >> confidence >> top_x >> top_y >> bottom_x >> bottom_y;
+				//std::cout <<name<< " " << channel << " " << top_x << " " << top_y << " " << bottom_x << " " << bottom_y << " " << std::endl;
+				Rect rect(top_x, top_y, bottom_x - top_x, bottom_y - top_y);
+				if (channel == "alpha") {
+					alpha_rects.push_back(rect);
+					alpha_confidence.push_back(confidence);
+				}
+
+				else if (channel == "beta") {
+					beta_rects.push_back(rect);
+					beta_confidence.push_back(confidence);
+				}
+
+				else if (channel == "gamma") {
+					gamma_rects.push_back(rect);
+					gamma_confidence.push_back(confidence);
+				}
+
+			}
+			out_rect_list.emplace_back(alpha_rects);
+			out_rect_list.emplace_back(beta_rects);
+			out_rect_list.emplace_back(gamma_rects);
+
+			out_confidence_list.emplace_back(alpha_confidence);
+			out_confidence_list.emplace_back(beta_confidence);
+			out_confidence_list.emplace_back(gamma_confidence);
+
+		}
+		
+		std::cout << "writefile: " << writeList[i] << std::endl;
+		std::cout << "out_rect_list len " << out_rect_list.size() << " out_confidence_list " << out_confidence_list.size() << std::endl;
+		ParseAlphaBetaGammaSAOG(out_rect_list[0], out_rect_list[1], out_rect_list[2], aog, writeList[i],
+			out_confidence_list[0], out_confidence_list[1], out_confidence_list[2]);
+	}
+}
 #endif // !ALPHA_BETA_GAMMA_SAOG_H

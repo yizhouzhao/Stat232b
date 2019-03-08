@@ -51,7 +51,7 @@ double SimplePotentialFunc(AOG_Vertex<string, string>& vertex_self,
 void SampleToFile(string filename, const AOG<string, string>& t_aog, VertexId sample_root, int num_samples = 100)
 {
 	//open file
-	ofstream outFile;
+	std::ofstream outFile;
 	outFile.open(filename);
 	if (outFile.is_open())
 	{
@@ -359,7 +359,12 @@ int main()
 
 
 	//AOG<std::string, std::vector<double>> 
-	LearnAlphaBetaGammaAOGFromFile("classroom_11.txt");
+	//LearnAlphaBetaGammaAOGFromFile("classroom_11.txt", "classroom_11_reconstructed2.txt");
+
+	//LearnAndParseAlphaBetaGammaAOGFromFile("classroom_33.txt", "classroom_33.txt", "classroom_33_reconstructed3.txt");
+
+	LearnAndParseVideoImagesFromFolder("classroom_33.txt", "C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_box",
+		"C:\\Users\\Yizhou Zhao\\Desktop\\pic2\\video_output");
 
 	//Mat frame3 = PlotAlphaBetaGammaSAOG(learn_aog);
 	////imshow("image3", frame3);
@@ -369,7 +374,7 @@ int main()
 
 	std::cout << "Hello World!\n";
 
-	std::cout << "overlap" <<" " << RectOverlap(Rect(90, 90, 20, 20), Rect(0, 0, 100, 100)) << std::endl;
+	//std::cout << "overlap" <<" " << RectOverlap(Rect(90, 90, 20, 20), Rect(0, 0, 100, 100)) << std::endl;
 
 	return 0;
 }

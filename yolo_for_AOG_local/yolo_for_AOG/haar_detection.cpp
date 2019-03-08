@@ -7,7 +7,7 @@
 //String eyes_cascade_name = "haarcascade_eye_tree_eyeglasses.xml";
 
 string window_name = "Capture - Face detection";
-RNG rng(12345);
+RNG rng(66666);
 
 //void predictImageHaar(const string& filename, bool eye_in_face, string writefile) {
 //	// PreDefined trained XML classifiers with facial features 

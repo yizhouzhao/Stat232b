@@ -111,8 +111,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\cpp\opencv\build\x64\vc15\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world401d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\cpp\boost_1_69_0_b1_rc3\lib64-msvc-14.1;D:\cpp\opencv\build\x64\vc15\lib\</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world401d.lib;boost_atomic-vc141-mt-gd-x64-1_69.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -157,6 +157,7 @@
     <ClInclude Include="circle_detection.h" />
     <ClInclude Include="haar_detection.h" />
     <ClInclude Include="random_generator.h" />
+    <ClInclude Include="video_to_image.h" />
     <ClInclude Include="yolo_detection.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -170,6 +171,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="random_generator.cpp" />
+    <ClCompile Include="video_to_image.cpp" />
     <ClCompile Include="yolo_detection.cpp" />
     <ClCompile Include="yolo_for_AOG.cpp" />
   </ItemGroup>
