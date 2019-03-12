@@ -130,34 +130,34 @@ void ParseAlphaBetaGammaSAOG_MultiBeta(const std::vector<Rect>& alpha_rects, con
 	}
 
 	// visualize part
-	Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
-	//Mat frame = Mat::zeros(900, 1200, CV_8UC3);
+	//Mat frame = Mat::zeros(3024, 4032, CV_8UC3);
+	Mat frame = Mat::zeros(1080, 1440, CV_8UC3);
 	frame = cv::Scalar(255, 255, 255);
 	for (int i = 0; i < gamma_rects.size(); i++) {
 		std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
 		Scalar color(180, 100, 20);
-		rectangle(frame, gamma_rects[i], color, 4, 8, 0);
+		rectangle(frame, gamma_rects[i], color, 2, 8, 0);
 	}
 
 	for (int j = 0; j < alpha_rects.size(); j++) {
 		std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
 		//if (alpha_scores[j] < alpha_threshold) continue;
 		Scalar color(20, 180, 100);
-		rectangle(frame, alpha_rects[j], color, 4, 8, 0);
+		rectangle(frame, alpha_rects[j], color, 2, 8, 0);
 	}
 
 	for (int k = 0; k < beta_rects.size(); k++) {
 		std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
 		//if (beta_scores[k] < beta_threshold) continue;
 		Scalar color(100, 20, 180);
-		rectangle(frame, beta_rects[k], color, 4, 8, 0);
+		rectangle(frame, beta_rects[k], color, 2, 8, 0);
 	}
 
 	cv::resize(frame, frame, Size(frame.cols, frame.rows));
 	imshow("frame", frame);
 	waitKey(0);
 
-	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test_3_independent_no_background.jpg", frame);
+	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test_3_independent_no_background.jpg", frame);
 
 	std::vector<Rect> reconstruced_gamma_rects;
 	std::vector<Rect> reconstruced_alpha_rects;
@@ -220,8 +220,8 @@ void ParseAlphaBetaGammaSAOG_MultiBeta(const std::vector<Rect>& alpha_rects, con
 		}
 	}
 
-	Mat frame2 = Mat::zeros(3024, 4032, CV_8UC3);
-	//Mat frame2 = Mat::zeros(900, 1200, CV_8UC3);
+	//Mat frame2 = Mat::zeros(3024, 4032, CV_8UC3);
+	Mat frame2 = Mat::zeros(1080, 1440, CV_8UC3);
 	frame2 = cv::Scalar(255, 255, 255);
 	//CV_Assert(reconstruced_gamma_rects.size() == reconstruced_beta_rects.size());
 	//CV_Assert(reconstruced_alpha_rects.size() == reconstruced_beta_rects.size());
@@ -229,26 +229,26 @@ void ParseAlphaBetaGammaSAOG_MultiBeta(const std::vector<Rect>& alpha_rects, con
 	for (int i = 0; i < reconstruced_gamma_rects.size(); i++) {
 		//std::cout << "gamma " << i << " score " << gamma_scores[i] << std::endl;
 		Scalar color(180, 100, 20);
-		rectangle(frame2, reconstruced_gamma_rects[i], color, 4, 8, 0);
+		rectangle(frame2, reconstruced_gamma_rects[i], color, 2, 8, 0);
 	}
 
 	for (int j = 0; j < reconstruced_alpha_rects.size(); j++) {
 		//std::cout << "alpha " << j << " score " << alpha_scores[j] << std::endl;
 		Scalar color(20, 180, 100);
-		rectangle(frame2, reconstruced_alpha_rects[j], color, 4, 8, 0);
+		rectangle(frame2, reconstruced_alpha_rects[j], color, 2, 8, 0);
 	}
 
 	for (int k = 0; k < reconstruced_beta_rects.size(); k++) {
 		//std::cout << "beta " << k << " score " << beta_scores[k] << std::endl;
 		Scalar color(100, 20, 180);
-		rectangle(frame2, reconstruced_beta_rects[k], color, 4, 8, 0);
+		rectangle(frame2, reconstruced_beta_rects[k], color, 2, 8, 0);
 	}
 
 	cv::resize(frame2, frame2, Size(frame2.cols, frame2.rows));
 	imshow("frame2", frame2);
 	waitKey(0);
 
-	//imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test_3_independent_no_background_reconstrued.jpg", frame2);
+	imwrite("C:\\Users\\Yizhou Zhao\\Desktop\\pic\\test_3_independent_no_background_reconstrued.jpg", frame2);
 
 	std::ofstream file(writefile);
 	if (file.is_open()) {
